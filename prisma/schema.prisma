@@ -1,0 +1,173 @@
+// SimpleSave — Prisma schema.
+// Phase 2B scope: the CONFIG BACKBONE only — what the admin edits and the calc
+// engine reads. User / Borrower / MortgageRequest / Document / etc. are added in
+// their own phases (see ROADMAP.md).
+//
+// DB values use English enums for clean queries; a thin adapter maps them to the
+// engine's Hebrew domain values (src/lib/contracts) so calc parity is preserved.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Prisma 7: connection URLs live in prisma.config.ts, not here.
+// CLI/migrations use DIRECT_URL (5432); the app runtime uses DATABASE_URL
+// (pooled, 6543) passed to PrismaClient in src/lib/db.
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------- enums ----------
+
+enum LoanPurpose {
+  HOUSING // מטרת דיור
+  ALL_PURPOSE // לכל מטרה / נכס קיים
+}
+
+enum RouteKind {
+  FIXED // קבועה
+  VARIABLE // משתנה
+  PRIME // פריים
+}
+
+enum IndexType {
+  NONE // ללא
+  CPI // מדד
+  USD // דולר
+  EUR // אירו
+}
+
+enum RiskRouteKind {
+  FIXED
+  VARIABLE
+  PRIME
+  ALL
+}
+
+enum RiskIndexed {
+  YES // כן
+  NO // לא
+  ANY // הכול
+}
+
+// ---------- global parameters (single active row) ----------
+
+// Market expectations + admin-editable business-rule defaults.
+model GlobalParameters {
+  id        String   @id @default(cuid())
+  isActive  Boolean  @default(true)
+
+  // Expected annual change (decimals, e.g. 0.03 = 3%)
+  expectedIndexAnnual  Float @default(0.03) // מדד
+  expectedDollarAnnual Float @default(0)
+  expectedEuroAnnual   Float @default(0)
+
+  // Anchors (decimals)
+  primeRate Float @default(0.0456)
+
+  // Business-rule defaults (admin-editable — not hardcoded)
+  maxRepaymentPct   Float @default(0.40) // מקס' החזר מהכנסה נטו
+  loanTermMaxAge    Int   @default(85) // תקרת גיל הלווה המבוגר
+  creditLookbackYrs Int   @default(7) // שנות בדיקת היסטוריית אשראי
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+// ---------- interest-rate tables ----------
+
+// A rate band: for a given purpose + track key, a year range maps to anchor+margin.
+// routeKey mirrors the engine's keys: fixedUnlinked, fixedLinked, variable36Unlinked,
+// variable36Linked, variable60Linked, variable60Unlinked, variable18_24Linked,
+// variable18_24Unlinked, prime.
+model RateBand {
+  id        String      @id @default(cuid())
+  purpose   LoanPurpose
+  routeKey  String
+  fromYears Float
+  toYears   Float
+  anchor    Float
+  margin    Float       @default(0)
+
+  updatedAt DateTime @updatedAt
+
+  @@index([purpose, routeKey])
+}
+
+// Rates effective from a date (for "mortgage taken on date X" scenarios).
+model DatedRate {
+  id         String      @id @default(cuid())
+  purpose    LoanPurpose
+  routeKey   String
+  fromYears  Float
+  toYears    Float
+  effectiveAt DateTime
+  anchor     Float
+  margin     Float       @default(0)
+
+  @@index([purpose, routeKey, effectiveAt])
+}
+
+// ---------- dial templates (the 5 שעונים) ----------
+
+model DialTemplate {
+  id    String @id @default(cuid())
+  key   String @unique // e.g. "clock1"
+  name  String // e.g. "שעון 1"
+  order Int    @default(0)
+
+  // optimization conditions (from the simulator templates)
+  shortenFixed     Boolean @default(true)
+  linkedFixedFirst Boolean @default(true)
+
+  tracks DialTrack[]
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model DialTrack {
+  id         String       @id @default(cuid())
+  template   DialTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  templateId String
+  order      Int          @default(0)
+
+  kind        RouteKind
+  sharePct    Float // % of the mix (0–100)
+  indexType   IndexType   @default(NONE)
+  changeMonths Int? // variable: months between resets
+  yearStep    Int? // term granularity used by the optimizer
+  anchorType  String? // פריים / אג"ח / פק"מ
+  anchor      Float?
+  margin      Float?      @default(0)
+
+  @@index([templateId])
+}
+
+// ---------- risk rules ----------
+
+model RiskRule {
+  id          String        @id @default(cuid())
+  routeKind   RiskRouteKind
+  fromMonths  Int
+  toMonths    Int
+  indexed     RiskIndexed
+  exitPenalty String // נמוך / בינוני / גבוה
+  risk        Int // 1–5
+  order       Int           @default(0)
+}
+
+// ---------- document requirements (dynamic list) ----------
+
+// Which documents a borrower must provide, by condition. `appliesTo` and
+// `condition` are evaluated against the request/borrower profile at runtime.
+model DocumentRequirement {
+  id                String  @id @default(cuid())
+  name              String
+  appliesTo         String? // e.g. "all" | "employed" | "self-employed" | "refinance" | "new"
+  condition         String? // free-form note/condition (spec lines 500–552)
+  requiredToProceed Boolean @default(true)
+  order             Int     @default(0)
+
+  updatedAt DateTime @updatedAt
+}

@@ -34,7 +34,7 @@ Stand up data + Supabase + the admin config that everything downstream reads.
 
 | Session | Goal | Needs | Deliverables |
 |---|---|---|---|
-| **2A — Infra: Supabase + Prisma** | DB online | 🔒 Supabase project (URL + keys, **EU region** for Std 13) | Supabase Postgres wired via Prisma (pooler); `.env.example`; client/server helpers |
+| **2A — Infra: Supabase + Prisma** ✅ | DB online | ✅ Supabase project (EU/Frankfurt) | ✅ Supabase Postgres wired via Prisma 7 (pg driver adapter, pooled runtime / direct migrations); `.env.example`; `src/lib/db.ts`; schema pushed; connection verified |
 | **2B — Config data model + seed** | Single source of truth for config | simulator defaults (have) | Prisma models: `InterestRateTable` (housing + all-purpose, dated), `GlobalParameters` (index 3%/prime/anchors/FX), dial/clock templates, `RiskRule`, document-requirement lists; **seed** from simulator defaults |
 | **2C — Auth + roles (Supabase)** | Protect admin; foundation for all roles | Supabase Auth | OTP via Supabase Auth, role model (customer/advisor/admin), RLS, admin route guard, admin login |
 | **2D — Admin config UI** | Manager controls the system | mockups 4 & 6 | Dial/template editor (up to 10 tracks, %); rate-table editor (housing + all-purpose); global-params editor; monthly index update. All CRUD on Phase-2B data |

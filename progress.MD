@@ -39,6 +39,29 @@ Hebrew-first RTL, config-driven, modular.
 
 ---
 
+## Session 8 — 2026-06-25 — Phase 2A: Supabase + Prisma wired ✅
+
+**Done — DB layer live and verified end-to-end.**
+- Supabase project: **EU region (eu-central-1 / Frankfurt)**, ref `iknokcilvdzbmevxhisy`. (Sydney project recreated in EU for Std 13.)
+- `.env.local` filled (gitignored): Supabase URL/anon/service + pooled `DATABASE_URL` (6543) + session `DIRECT_URL` (5432).
+- **Prisma 7 specifics handled (newer than training — see AGENTS.md):**
+  - Connection URLs moved to `prisma.config.ts` (CLI/migrations use `DIRECT_URL`); schema datasource is provider-only.
+  - Runtime uses a **driver adapter** (`@prisma/adapter-pg`) with the pooled URL — `datasourceUrl`/`datasources` constructor options were removed in v7.
+  - Added `postinstall: prisma generate` (v7 removed the auto post-install hook).
+- `prisma/schema.prisma` — config-backbone models pushed to DB via `prisma db push`: GlobalParameters, RateBand, DatedRate, DialTemplate, DialTrack, RiskRule, DocumentRequirement (+ enums).
+- `src/lib/db.ts` — Prisma singleton via pg adapter (pooled). Verified: `select 1` ok + table count works through the pooler.
+- `tsc` clean, 7/7 calc tests still pass.
+
+**Gotchas logged:** DB password with `!` failed (encoding ambiguity) → reset to alphanumeric; password reset needs ~30–60s to propagate to the pooler (P1000/P1001 until it does). Direct connection is IPv6-only on this network → using session pooler (5432) for `DIRECT_URL`.
+
+**Security TODO (client):** rotate the `service_role` key before real data (it was pasted in chat). Tables are empty; low risk now.
+
+**Not committed** — awaiting approval (per [[ask-before-commit-push]]). (`.env.local` is gitignored, won't be committed.)
+
+**Next:** Phase 2B — seed the config from simulator defaults (5 dial templates, rate bands, global params, risk rules, doc requirements) via `prisma/seed.mjs`.
+
+---
+
 ## Session 7 — 2026-06-25 — Phase 1A: calc engine ported ✅
 
 **Done — the pure calculation engine, parity-tested against the simulator.**

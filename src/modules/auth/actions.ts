@@ -19,7 +19,7 @@ export async function sendOtp(
   const email = String(formData.get("email") ?? "").trim();
   if (!email) return { errorKey: "errorSend" };
 
-  const next = String(formData.get("redirect") ?? "") || "/";
+  const next = String(formData.get("redirect") ?? "") || "/account";
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({
     email,
@@ -52,7 +52,7 @@ export async function verifyOtp(
   });
   if (error) return { sent: true, email, errorKey: "errorVerify" };
 
-  const redirectTo = String(formData.get("redirect") ?? "") || "/";
+  const redirectTo = String(formData.get("redirect") ?? "") || "/account?welcome=1";
   redirect(redirectTo);
 }
 

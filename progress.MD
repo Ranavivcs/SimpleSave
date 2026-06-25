@@ -63,6 +63,18 @@ The remote feature branches can be deleted once `main` is pushed.
 
 ---
 
+## Session 16 — 2026-06-25 — Personal area: documents tab + UX (guest gate, auth-aware header) ✅
+
+- **מסמכים tab:** `DocumentList` (`src/modules/documents`) renders seeded `DocumentRequirement`, filtered by request type, required-badges + condition notes; upload disabled (Phase 5). `documents.*` i18n.
+- **Auth-aware header:** "אזור אישי" → `/account`; logout shows when signed in.
+- **Login confirmation:** after OTP, land on `/account?welcome=1` with a success banner.
+- **Guest gate:** signed-out `/account` offers התחברות / המשך כאורח (guest remembered via cookie); replaced the dev bypass — works in all envs.
+- Note: home "new mortgage" = teaser→clocks (partner); personal-area request = real application (ours). tsc + he.json clean.
+
+**Next:** admin + advisor dashboards (awaiting mockups) · mortgage-data tab · persistence.
+
+---
+
 ## Session 15 — 2026-06-25 — Phase 4: Personal Area shell + personal-data form ✅
 
 Branch `feat/phase-4-personal-area`.

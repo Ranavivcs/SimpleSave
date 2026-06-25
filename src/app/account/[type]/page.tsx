@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { AccountTabs, ACCOUNT_TABS, type AccountTab } from "@/modules/account/AccountTabs";
 import { QuestionnaireWizard } from "@/modules/questionnaire/QuestionnaireWizard";
 import { personalData } from "@/modules/questionnaire/content/personalData";
+import { DocumentList } from "@/modules/documents/DocumentList";
 
 const TYPES = ["new-mortgage", "refinance", "insurance"];
 
@@ -34,6 +35,10 @@ export default async function RequestPage({
       {active === "personal" ? (
         <div className="mt-6">
           <QuestionnaireWizard questionnaire={personalData} mode="save" />
+        </div>
+      ) : active === "documents" ? (
+        <div className="mt-6">
+          <DocumentList type={type} />
         </div>
       ) : (
         <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6">

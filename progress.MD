@@ -69,6 +69,20 @@ or out of order, *will* force a manual conflict resolution — don't.
 
 ---
 
+## Session 11 — 2026-06-25 — Phase 3A UI: questionnaire wizard **DEMO** ✅
+
+**Done — a labeled DEMO that shows the 3A + 3B engines working in the browser. NOT the production customer flow.**
+- Route: `/demo/questionnaire` (`src/app/demo/questionnaire/page.tsx`) — under `/demo`, with a visible "🚧 הדגמה בלבד" badge + subtitle so it can't be mistaken for the real UI.
+- `src/modules/questionnaire/`: `QuestionnaireWizard.tsx` (client wizard — steps, 1–5 borrowers, conditional fields, live validation), `FieldInput.tsx` (generic field renderer + hover tooltips via the engine's `helpKey`), `sampleNewMortgage.ts` (sample questionnaire + `answerToEligibilityInput` mapper).
+- `messages/he.json` — `demo.*` strings (labels, help tooltips, results). No hardcoded strings.
+- On submit it runs the 3B eligibility engine and shows max loan / required equity / capacity / term + violations.
+- **In-memory only** (no DB, no auth). Sample questions are placeholders — real per-variant content + dials (3C) need Phase-2 config.
+- Verified: `next dev` serves it (HTTP 200, RTL Hebrew, no runtime errors); `tsc` clean (except the env-only `db.ts`); 34 engine tests still pass.
+
+**Branch:** `feat/phase-3a-wizard-ui`, stacked on `feat/phase-3b-eligibility-engine` (→ merge order: 3A → 3B → this, if it's merged at all; it's a demo).
+
+---
+
 ## Session 10 — 2026-06-25 — Phase 3B (core): eligibility & repayment-capacity engine ✅
 
 **Done — pure eligibility engine. Parallel track, branched off main `c88b98a`. Standalone like the calc engine — no DB, no questionnaire dependency.**

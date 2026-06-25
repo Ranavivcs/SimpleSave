@@ -122,6 +122,7 @@ simplesave/
 │  │  ├─ eligibility/      # ✅ eligibility & repayment-capacity — pure, testable (income/property/age)
 │  │  ├─ supabase/         # ✅ Supabase SSR clients (server/client/proxy helper) — Phase 2C
 │  │  ├─ auth/             # ✅ server-side auth guards (session/getProfile/requireAdmin) — Phase 2C
+│  │  ├─ dials/            # ✅ config→engine resolver + term optimizer (loadConfig = only DB file)
 │  │  ├─ contracts/        # ✅ typed objects between layers (mortgage.ts, questionnaire.ts, eligibility.ts)
 │  │  └─ db.ts             # ✅ Prisma singleton (pg driver adapter, pooled)
 │  └─ i18n/                # config.ts, request.ts

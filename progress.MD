@@ -54,12 +54,49 @@ The remote feature branches can be deleted once `main` is pushed.
 - [x] Phase 2B — Config seeded
 - [x] Phase 2C — Auth (OTP) + roles + admin guard
 - [ ] Phase 2D — Admin config UI  ← **next**
-- [~] Phase 3 — Customer guest flow: ✅ 3A questionnaire engine · ✅ 3B eligibility core (merged) · ✅ 3C resolver (config→engine) · ⏳ 3B questionnaire content + adapter · ⏳ 3C dials UI · ⏳ 3D refi · ⏳ 3E insurance
+- [~] Phase 3 — Customer guest flow: ✅ 3A questionnaire engine · ✅ 3B eligibility core · ✅ 3C resolver (config→engine) · ✅ new-mortgage questionnaire UI (`/questionnaire/new-mortgage`) · ✅ 3C dials UI (מסך השעונים) · ⏳ mortgage-data page (placeholder) · ⏳ refi/insurance questionnaires · ⏳ 3D refi · ⏳ 3E insurance
 - [ ] Phase 4 — Customer accounts & personal area
 - [ ] Phase 5 — Document upload
 - [ ] Phase 6 — Advisor panel
 - [ ] Phase 7 — Insurance module
 - [ ] Phase 8 — Post-mortgage tracking
+
+---
+
+## Session 14 — 2026-06-26 — Phase 3C: dials screen (מסך השעונים) ✅
+
+**Done — the 5-dial results screen after the new-mortgage questionnaire, driven by the resolver + calc engine.**
+- **New module `src/modules/dials/`:** `DialsScreen` (fetches via a server action, loading/empty/error states, in-memory select + expand), `DialCard` (name · speedometer · 3 metrics · בחר שעון/פירוט), `Speedometer` (custom SVG gauge — 5 segments green→red, needle at `risk.level`, Hebrew `risk.label` inside, "קבל פירוט" link), `PaymentChart` (custom SVG: monthly-payment line + cumulative principal/interest stacked areas). No chart dependency.
+- **`dialView.ts` (pure, tested):** `toDialCards` maps `ResolvedDial[]` → light card view-models, aggregating the per-track schedules into combined monthly + cumulative series (`interestAndIndexation = interest + indexation`).
+- **`actions.ts` (`"use server"`):** `getDials(input)` = `loadDialsConfig()` → `resolveDials()` → `toDialCards()`. Verified end-to-end against the live DB: 5 dials resolve (clock1–5), metrics + risk + 240-pt chart series, all in-range for a ₪700k / 3k–8k request.
+- **Wizard seam:** `QuestionnaireWizard` gained an optional `renderResult(answer, onReset)` (default = eligibility `ResultCard`); `NewMortgageWizard` passes it to show `<DialsScreen>` (loanAmount = value−equity, purpose from loan type, min/max from desired payment). Reusable for refi/insurance later.
+- **Placeholder:** speedometer "קבל פירוט" → `/questionnaire/new-mortgage/mortgage-data` stub (the full mortgage-data page is the next module).
+- All copy in `messages/he.json` (`dials.*`). `npx tsc --noEmit` clean; **58/58 tests** (incl. new `dialView.test.ts`); pages compile (200), demo redirect intact.
+- **Bank of Israel rate (checked, not changed):** current BoI rate **3.75%** (cut 2026-05-25) → Israeli prime ≈ **5.25%**; seeded prime **4.56%** is stale by ~0.7pp. Rates are admin-editable config → update via Phase 2D / re-seed (shared DB left untouched per client choice).
+
+**Not committed** — awaiting approval (per [[ask-before-commit-push]]).
+
+**Next:** the mortgage-data page ("דף נתוני משכנתא") that "קבל פירוט" opens; or Phase 2D admin config UI (also lets the admin fix the stale prime).
+
+---
+
+## Session 13 — 2026-06-25 — Phase 3: new-mortgage questionnaire flow (real route) ✅
+
+**Done — the production "משכנתא חדשה" guest flow at the real route, per the client's exact question spec.**
+- **Route:** `/questionnaire/new-mortgage` (`src/app/questionnaire/new-mortgage/page.tsx`) — the home-page card now lands here (was a 404). `/demo/questionnaire` now 307-redirects to it.
+- **Config:** `src/modules/new-mortgage/newMortgageQuestionnaire.ts` — questionnaire definition in spec order across 3 sections: (S1) loan type · property source · property value · equity; (S2, per-borrower, count 1–5) birth date · net income; (S3) additional income (ℹ️) · fixed expenses (ℹ️) · desired payment min/max. All copy in `messages/he.json` (`newMortgage.*`; shared UI `wizard.*`).
+- **Effective LTV (two-question model):** `answerToEligibilityInput` maps loan type + property source → the engine's `PurchaseType`. Mechir LaMishtaken (a *source*) → 90% (min ₪100k equity); else the loan-type cap (single 75 / improvement 70 / additional & all-purpose 50). Loan amount is derived (value − equity); no separate loan question.
+- **Cross-field gating (`validateNewMortgage`):** reuses the eligibility engine as the single source of truth — equity below the per-type requirement blocks "Next" with small red text (25% single / 30% improvement / 50% additional·all-purpose / 10%-but-≥₪100k Mechir); equity ≥ property value blocked (loan would be ≤ 0); desired max > 40% of net income blocked; min ≤ max enforced. A live "estimated loan = value − equity" line shows beside the equity field.
+- **Borrowers step:** each borrower also has a **name** and an **"is the borrower the property owner?"** toggle. A non-owner is a non-mortgagor, so their income counts at 50% (engine `nonMortgagorIncomeFactor`) — drives the repayment-capacity math.
+- **Wizard generalized:** `QuestionnaireWizard` now takes `{ questionnaire, mapToEligibility, extraValidate?, renderSummary? }` (one wizard for all variants — no duplication); domain errors are merged with the engine's static validation and shown live. Shared UI strings moved `demo.*` → `wizard.*`; `FieldInput` updated. Removed the superseded `sampleNewMortgage.ts`.
+- **Added `vitest.config.ts`** (maps the `@/*` alias) so module tests can use `@/...` imports.
+- **Verify:** `npx tsc --noEmit` clean (with Prisma client generated); **51/51 tests** (40 prior + 11 new in `newMortgage.test.ts`: LTV combos, equity gate, 40% cap, range order); `npm run dev` → `/questionnaire/new-mortgage` 200, `/demo/questionnaire` 307, spec strings render.
+
+**Deferred (per spec):** additional-income / fixed-expenses per-row tables move to the Personal Area phase (stage 1 = single sum). Refi & insurance questionnaire content still to come; 3C dials UI consumes `resolveDials` next.
+
+**Not committed** — awaiting approval (per [[ask-before-commit-push]]).
+
+**Next:** 3C dials UI (mockups 2 & 13) on top of `resolveDials`, or Phase 2D admin config UI.
 
 ---
 

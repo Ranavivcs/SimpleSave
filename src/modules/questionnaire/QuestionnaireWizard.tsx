@@ -1,12 +1,14 @@
 "use client";
 
 /**
- * Demo wizard — drives the sample questionnaire through the pure 3A engine
- * (visibility, per-borrower expansion, validation) and, on completion, shows
- * the 3B eligibility result. All state is in-memory; no DB, no auth.
+ * Generic questionnaire wizard — drives ANY questionnaire definition through the
+ * pure engine (visibility, per-borrower expansion, validation) and, on
+ * completion, shows the eligibility result. Reused by every variant
+ * (new/refi/insurance) — domain content + cross-field rules are passed in.
+ * All state is in-memory; no DB, no auth.
  */
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import {
   createEmptyAnswer,
@@ -14,31 +16,70 @@ import {
   renderableFields,
   validateSection,
   isComplete,
+  type Questionnaire,
   type QuestionnaireAnswer,
   type AnswerValue,
+  type ValidationError,
 } from "@/lib/questionnaire";
-import { assessEligibility, type EligibilityResult } from "@/lib/eligibility";
-import { sampleNewMortgage as Q, answerToEligibilityInput } from "./sampleNewMortgage";
+import {
+  assessEligibility,
+  type EligibilityInput,
+  type EligibilityResult,
+} from "@/lib/eligibility";
 import { FieldInput, type TFn } from "./FieldInput";
 
 const nis = new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS", maximumFractionDigits: 0 });
 
-export function QuestionnaireWizard() {
+export type QuestionnaireWizardProps = {
+  questionnaire: Questionnaire;
+  /** Map the completed answer onto the eligibility engine's input. */
+  mapToEligibility: (a: QuestionnaireAnswer) => EligibilityInput;
+  /** Cross-field domain validation; errors are shown live and block "Next". */
+  extraValidate?: (a: QuestionnaireAnswer) => ValidationError[];
+  /** Optional live summary (e.g. derived loan amount) rendered under the fields. */
+  renderSummary?: (a: QuestionnaireAnswer) => ReactNode;
+  /** Optional completion view (e.g. the dials screen). Defaults to the eligibility card. */
+  renderResult?: (a: QuestionnaireAnswer, onReset: () => void) => ReactNode;
+};
+
+export function QuestionnaireWizard({
+  questionnaire: Q,
+  mapToEligibility,
+  extraValidate,
+  renderSummary,
+  renderResult,
+}: QuestionnaireWizardProps) {
   const t = useTranslations() as TFn;
   const [answer, setAnswer] = useState<QuestionnaireAnswer>(() => createEmptyAnswer(Q));
   const [step, setStep] = useState(0);
   const [showErrors, setShowErrors] = useState(false);
-  const [result, setResult] = useState<EligibilityResult | null>(null);
+  const [completed, setCompleted] = useState<QuestionnaireAnswer | null>(null);
 
   const section = Q.sections[step];
   const isLast = step === Q.sections.length - 1;
   const hasPerBorrower = section.fields.some((f) => f.perBorrower);
 
   const items = useMemo(() => renderableFields(section, answer), [section, answer]);
-  const errorByPath = useMemo(
+
+  // Static (per-field) errors — surfaced only after a "Next" attempt.
+  const staticErrByPath = useMemo(
     () => new Map(validateSection(section, answer).map((e) => [e.path, e])),
     [section, answer],
   );
+  // Cross-field (domain) errors — shown live, filtered to this section's fields.
+  const domainErrByPath = useMemo(() => {
+    if (!extraValidate) return new Map<string, ValidationError>();
+    const ids = new Set(items.map((it) => it.field.id));
+    return new Map(
+      extraValidate(answer)
+        .filter((e) => ids.has(e.fieldId))
+        .map((e) => [e.path, e]),
+    );
+  }, [extraValidate, answer, items]);
+
+  const errorFor = (path: string): ValidationError | undefined =>
+    domainErrByPath.get(path) ?? (showErrors ? staticErrByPath.get(path) : undefined);
+  const sectionHasError = staticErrByPath.size > 0 || domainErrByPath.size > 0;
 
   const setGlobal = (id: string, v: AnswerValue) =>
     setAnswer((a) => ({ ...a, values: { ...a.values, [id]: v } }));
@@ -49,35 +90,56 @@ export function QuestionnaireWizard() {
     }));
 
   function next() {
-    if (errorByPath.size > 0) {
+    if (sectionHasError) {
       setShowErrors(true);
       return;
     }
     setShowErrors(false);
     if (isLast) {
-      if (isComplete(Q, answer)) setResult(assessEligibility(answerToEligibilityInput(answer)));
+      if (isComplete(Q, answer)) setCompleted(answer);
     } else {
       setStep((s) => s + 1);
     }
   }
 
   function reset() {
-    setResult(null);
+    setCompleted(null);
     setAnswer(createEmptyAnswer(Q));
     setStep(0);
     setShowErrors(false);
   }
 
-  if (result) return <ResultCard result={result} t={t} onReset={reset} />;
+  if (completed) {
+    return renderResult ? (
+      <>{renderResult(completed, reset)}</>
+    ) : (
+      <ResultCard result={assessEligibility(mapToEligibility(completed))} t={t} onReset={reset} />
+    );
+  }
 
   const globals = items.filter((it) => it.borrowerIndex === undefined);
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="mb-1 text-xs font-medium text-brand-600">
-        {t("demo.step", { current: step + 1, total: Q.sections.length })}
+        {t("wizard.step", { current: step + 1, total: Q.sections.length })}
       </div>
       <h2 className="mb-5 text-lg font-bold text-slate-900">{t(section.titleKey)}</h2>
+
+      {hasPerBorrower && (
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-slate-800">{t("wizard.borrowerCount")}</label>
+          <select
+            className="mt-1 w-24 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            value={answer.borrowerCount}
+            onChange={(e) => setAnswer((a) => setBorrowerCount(Q, a, Number(e.target.value)))}
+          >
+            {Array.from({ length: Q.maxBorrowers - Q.minBorrowers + 1 }, (_, k) => Q.minBorrowers + k).map((n) => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {globals.map((it) => (
         <FieldInput
@@ -85,47 +147,33 @@ export function QuestionnaireWizard() {
           field={it.field}
           value={answer.values[it.field.id]}
           onChange={(v) => setGlobal(it.field.id, v)}
-          error={showErrors ? errorByPath.get(it.path) : undefined}
+          error={errorFor(it.path)}
           t={t}
         />
       ))}
 
-      {hasPerBorrower && (
-        <>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-slate-800">{t("demo.borrowerCount")}</label>
-            <select
-              className="mt-1 w-24 rounded-lg border border-slate-300 px-3 py-2 text-sm"
-              value={answer.borrowerCount}
-              onChange={(e) => setAnswer((a) => setBorrowerCount(Q, a, Number(e.target.value)))}
-            >
-              {Array.from({ length: Q.maxBorrowers - Q.minBorrowers + 1 }, (_, k) => Q.minBorrowers + k).map((n) => (
-                <option key={n} value={n}>{n}</option>
+      {hasPerBorrower &&
+        Array.from({ length: answer.borrowerCount }, (_, i) => i).map((i) => {
+          const fields = items.filter((it) => it.borrowerIndex === i);
+          if (fields.length === 0) return null;
+          return (
+            <fieldset key={i} className="mb-4 rounded-xl border border-slate-200 p-4">
+              <legend className="px-2 text-sm font-semibold text-brand-700">{t("wizard.borrower", { n: i + 1 })}</legend>
+              {fields.map((it) => (
+                <FieldInput
+                  key={it.path}
+                  field={it.field}
+                  value={answer.borrowers[i]?.[it.field.id]}
+                  onChange={(v) => setBorrower(i, it.field.id, v)}
+                  error={errorFor(it.path)}
+                  t={t}
+                />
               ))}
-            </select>
-          </div>
+            </fieldset>
+          );
+        })}
 
-          {Array.from({ length: answer.borrowerCount }, (_, i) => i).map((i) => {
-            const fields = items.filter((it) => it.borrowerIndex === i);
-            if (fields.length === 0) return null;
-            return (
-              <fieldset key={i} className="mb-4 rounded-xl border border-slate-200 p-4">
-                <legend className="px-2 text-sm font-semibold text-brand-700">{t("demo.borrower", { n: i + 1 })}</legend>
-                {fields.map((it) => (
-                  <FieldInput
-                    key={it.path}
-                    field={it.field}
-                    value={answer.borrowers[i]?.[it.field.id]}
-                    onChange={(v) => setBorrower(i, it.field.id, v)}
-                    error={showErrors ? errorByPath.get(it.path) : undefined}
-                    t={t}
-                  />
-                ))}
-              </fieldset>
-            );
-          })}
-        </>
-      )}
+      {renderSummary?.(answer)}
 
       <div className="mt-6 flex items-center justify-between">
         <button
@@ -141,7 +189,7 @@ export function QuestionnaireWizard() {
           onClick={next}
           className="rounded-lg bg-brand-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-900"
         >
-          {isLast ? t("demo.submit") : t("common.next")}
+          {isLast ? t("wizard.submit") : t("common.next")}
         </button>
       </div>
     </div>
@@ -150,17 +198,17 @@ export function QuestionnaireWizard() {
 
 function ResultCard({ result, t, onReset }: { result: EligibilityResult; t: TFn; onReset: () => void }) {
   const rows: [string, string][] = [
-    ["demo.result.maxLoan", nis.format(result.maxLoanAmount)],
-    ["demo.result.requiredEquity", nis.format(result.requiredEquity)],
-    ["demo.result.maxPayment", nis.format(result.maxMonthlyPayment)],
-    ["demo.result.income", nis.format(result.qualifyingMonthlyIncome)],
-    ["demo.result.maxTerm", String(result.maxLoanTermYears)],
+    ["wizard.result.maxLoan", nis.format(result.maxLoanAmount)],
+    ["wizard.result.requiredEquity", nis.format(result.requiredEquity)],
+    ["wizard.result.maxPayment", nis.format(result.maxMonthlyPayment)],
+    ["wizard.result.income", nis.format(result.qualifyingMonthlyIncome)],
+    ["wizard.result.maxTerm", String(result.maxLoanTermYears)],
   ];
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 className="text-lg font-bold text-slate-900">{t("demo.result.title")}</h2>
+      <h2 className="text-lg font-bold text-slate-900">{t("wizard.result.title")}</h2>
       <p className={"mt-2 text-sm font-semibold " + (result.eligible ? "text-emerald-600" : "text-amber-600")}>
-        {t(result.eligible ? "demo.result.eligible" : "demo.result.notEligible")}
+        {t(result.eligible ? "wizard.result.eligible" : "wizard.result.notEligible")}
       </p>
 
       <dl className="mt-5 grid grid-cols-2 gap-3">
@@ -174,7 +222,7 @@ function ResultCard({ result, t, onReset }: { result: EligibilityResult; t: TFn;
 
       {result.violations.length > 0 && (
         <div className="mt-5">
-          <h3 className="text-sm font-semibold text-amber-700">{t("demo.result.violations")}</h3>
+          <h3 className="text-sm font-semibold text-amber-700">{t("wizard.result.violations")}</h3>
           <ul className="mt-2 list-disc space-y-1 pe-5 text-sm text-amber-700">
             {result.violations.map((v) => (
               <li key={v.code}>{t(v.messageKey, v.params)}</li>
@@ -188,7 +236,7 @@ function ResultCard({ result, t, onReset }: { result: EligibilityResult; t: TFn;
         onClick={onReset}
         className="mt-6 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:border-brand-500"
       >
-        {t("demo.editAgain")}
+        {t("wizard.editAgain")}
       </button>
     </div>
   );

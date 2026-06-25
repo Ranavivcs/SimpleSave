@@ -108,7 +108,7 @@ export function FieldInput({
                     : "border-slate-300 bg-white text-slate-700 hover:border-brand-500")
                 }
               >
-                {t(b ? "demo.yes" : "demo.no")}
+                {t(b ? "wizard.yes" : "wizard.no")}
               </button>
             ))}
           </div>
@@ -120,7 +120,7 @@ export function FieldInput({
             value={typeof value === "string" ? value : ""}
             onChange={(e) => onChange(e.target.value || null)}
           >
-            <option value="">{t("demo.choose")}</option>
+            <option value="">{t("wizard.choose")}</option>
             {field.options.map((o) => (
               <option key={o.value} value={o.value}>
                 {t(o.labelKey)}

@@ -63,6 +63,19 @@ The remote feature branches can be deleted once `main` is pushed.
 
 ---
 
+## Session 15 — 2026-06-25 — Phase 4: Personal Area shell + personal-data form ✅
+
+Branch `feat/phase-4-personal-area`.
+- **`/account`** (auth-gated, `requireUser`): "my requests" → **`/account/[type]`** tabbed area (נתונים אישיים · נתוני משכנתא · אישור עקרוני · מסמכים · בטחונות · הודעות ליועץ). `AccountTabs` + `account.*` i18n. Non-personal tabs are placeholders.
+- **Wizard generalized:** added `mode="save"` (confirmation card, no eligibility) + `SavedCard`.
+- **`FieldInput` now renders `table` fields** (add/remove rows; cells reuse a shared `ScalarControl`).
+- **`personalData` config** (`src/modules/questionnaire/content/personalData.ts`): per-borrower, 5 sections (~25 fields) incl. loans / extra-income / properties **tables** + conditional properties table. Wired into the נתונים אישיים tab.
+- In-memory only (persistence = next). tsc + he.json valid. 40/40 tests unaffected.
+
+**Next:** document-list tab (dynamic required docs per loan type/profile), then mortgage-data tab, persistence, משרד השיכון זכאות.
+
+---
+
 ## Session 14 — 2026-06-25 — Consolidate main: 3C resolver + auth magic-link fix ✅
 
 - **3C resolver merged to `main`** (`src/lib/dials`: resolver/optimizer/rates/loadConfig + tests). Pure; input `ResolveDialsInput {loanAmount, purpose, minPay, maxPay}`. Dials *screen* still pending (partner).

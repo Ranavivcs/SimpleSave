@@ -35,8 +35,11 @@ const nis = new Intl.NumberFormat("he-IL", {
 
 export function QuestionnaireWizard({
   questionnaire,
+  mode = "eligibility",
 }: {
   questionnaire: Questionnaire;
+  /** "eligibility" runs the engine on submit; "save" just confirms (personal area). */
+  mode?: "eligibility" | "save";
 }) {
   const Q = questionnaire;
   const t = useTranslations() as TFn;
@@ -44,6 +47,7 @@ export function QuestionnaireWizard({
   const [step, setStep] = useState(0);
   const [showErrors, setShowErrors] = useState(false);
   const [result, setResult] = useState<EligibilityResult | null>(null);
+  const [saved, setSaved] = useState(false);
 
   const section = Q.sections[step];
   const isLast = step === Q.sections.length - 1;
@@ -70,7 +74,9 @@ export function QuestionnaireWizard({
     }
     setShowErrors(false);
     if (isLast) {
-      if (isComplete(Q, answer)) setResult(assessEligibility(answerToEligibilityInput(answer)));
+      if (!isComplete(Q, answer)) return;
+      if (mode === "save") setSaved(true); // TODO Phase 4: persist to DB
+      else setResult(assessEligibility(answerToEligibilityInput(answer)));
     } else {
       setStep((s) => s + 1);
     }
@@ -78,11 +84,13 @@ export function QuestionnaireWizard({
 
   function reset() {
     setResult(null);
+    setSaved(false);
     setAnswer(createEmptyAnswer(Q));
     setStep(0);
     setShowErrors(false);
   }
 
+  if (saved) return <SavedCard t={t} onReset={reset} />;
   if (result) return <ResultCard result={result} t={t} onReset={reset} />;
 
   const globals = items.filter((it) => it.borrowerIndex === undefined);
@@ -165,9 +173,25 @@ export function QuestionnaireWizard({
           onClick={next}
           className="rounded-lg bg-brand-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-900"
         >
-          {isLast ? t("wizard.submit") : t("common.next")}
+          {isLast ? t(mode === "save" ? "wizard.save" : "wizard.submit") : t("common.next")}
         </button>
       </div>
+    </div>
+  );
+}
+
+function SavedCard({ t, onReset }: { t: TFn; onReset: () => void }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 className="text-lg font-bold text-emerald-700">{t("wizard.saved.title")}</h2>
+      <p className="mt-2 text-sm text-slate-600">{t("wizard.saved.desc")}</p>
+      <button
+        type="button"
+        onClick={onReset}
+        className="mt-5 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:border-brand-500"
+      >
+        {t("wizard.editAgain")}
+      </button>
     </div>
   );
 }

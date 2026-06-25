@@ -119,6 +119,25 @@
     "loggedInAs": "מחובר כ-{email}",
     "logout": "יציאה"
   },
+  "account": {
+    "title": "האזור האישי",
+    "myRequests": "הבקשות שלי",
+    "openRequest": "כניסה לבקשה",
+    "requests": {
+      "new-mortgage": "משכנתא חדשה",
+      "refinance": "מחזור משכנתא",
+      "insurance": "ביטוח משכנתא"
+    },
+    "tabs": {
+      "personal": "נתונים אישיים",
+      "mortgage": "נתוני משכנתא",
+      "approval": "אישור עקרוני",
+      "documents": "מסמכים",
+      "collateral": "בטחונות",
+      "messages": "הודעות ליועץ"
+    },
+    "soonDesc": "החלק הזה ייבנה בקרוב."
+  },
   "wizard": {
     "step": "שלב {current} מתוך {total}",
     "borrowerCount": "מספר לווים",
@@ -128,6 +147,10 @@
     "yes": "כן",
     "no": "לא",
     "editAgain": "עריכה מחדש",
+    "save": "שמירה",
+    "saved": { "title": "הנתונים נשמרו", "desc": "אפשר להמשיך למילוי שאר הלשוניות." },
+    "addRow": "הוספת שורה",
+    "removeRow": "הסרה",
     "toDials": "המשך לתמהילים המומלצים",
     "toDialsSoon": "מסך התמהילים (5 השעונים) בבנייה — יתחבר כאן בקרוב",
     "result": {
@@ -145,6 +168,59 @@
   "questionnaire": {
     "comingSoon": "בקרוב",
     "comingSoonDesc": "המסלול הזה ייפתח בקרוב. בינתיים אפשר להתחיל במסלול משכנתא חדשה.",
+    "personalData": {
+      "title": "נתונים אישיים",
+      "sections": {
+        "identity": "פרטים אישיים",
+        "contact": "פרטי התקשרות",
+        "employment": "תעסוקה",
+        "declarations": "הצהרות",
+        "finances": "נתונים פיננסיים"
+      },
+      "f": {
+        "firstName": "שם פרטי",
+        "lastName": "שם משפחה",
+        "gender": "מין",
+        "maritalStatus": "מצב משפחתי",
+        "birthDate": "תאריך לידה",
+        "education": "השכלה",
+        "phone": "טלפון",
+        "email": "אימייל",
+        "addrCity": "עיר מגורים",
+        "addrStreet": "רחוב",
+        "addrNumber": "מספר בית",
+        "addrApt": "מספר דירה",
+        "employmentStatus": "סטטוס תעסוקה",
+        "profession": "מקצוע",
+        "workplace": "מקום עבודה",
+        "workSeniorityYears": "ותק במקום העבודה (שנים)",
+        "additionalCitizenship": "אזרחות נוספת?",
+        "publicFigure": "קרבה לאיש ציבור?",
+        "healthOk": "מצב בריאותי תקין?",
+        "creditIssues": "בעיות אשראי ב-7 השנים האחרונות?",
+        "netMonthlyIncome": "הכנסה חודשית נטו",
+        "loans": "הלוואות קיימות",
+        "extraIncome": "הכנסות נוספות",
+        "additionalProperties": "נכסים נוספים בבעלות?",
+        "propertiesTable": "פירוט נכסים"
+      },
+      "opt": {
+        "male": "זכר", "female": "נקבה",
+        "single": "רווק/ה", "married": "נשוי/אה", "divorced": "גרוש/ה", "widowed": "אלמן/ה",
+        "highschool": "תיכונית", "postsecondary": "על-תיכונית", "bachelor": "תואר ראשון", "master": "תואר שני",
+        "employee": "שכיר/ה", "selfEmployed": "עצמאי/ת", "controllingOwner": "בעל/ת שליטה",
+        "house": "בית פרטי", "duplex": "דו-משפחתי", "apartment": "דירה בבניין"
+      },
+      "cols": {
+        "lender": "מקור ההלוואה", "amount": "סכום", "monthlyPayment": "החזר חודשי", "endDate": "תאריך סיום",
+        "type": "סוג", "city": "עיר", "value": "שווי", "mortgage": "יתרת משכנתא", "kind": "סוג נכס"
+      },
+      "help": {
+        "creditIssues": "אם סימנת כן — נציג ייצור איתך קשר לבירור.",
+        "netMonthlyIncome": "שכיר: ממוצע 3 חודשים אחרונים. עצמאי: ממוצע 3 שנים אחרונות.",
+        "additionalProperties": "דירה נוספת יכולה להגדיל את ההון העצמי."
+      }
+    },
     "newMortgage": {
       "title": "משכנתא חדשה",
       "sections": {

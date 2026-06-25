@@ -12,6 +12,7 @@
  */
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   createEmptyAnswer,
@@ -25,6 +26,7 @@ import {
 } from "@/lib/questionnaire";
 import { assessEligibility, type EligibilityResult } from "@/lib/eligibility";
 import { answerToEligibilityInput } from "./mappers";
+import { markTabDone } from "@/lib/tab-progress";
 import { FieldInput, type TFn } from "./FieldInput";
 
 const nis = new Intl.NumberFormat("he-IL", {
@@ -36,13 +38,17 @@ const nis = new Intl.NumberFormat("he-IL", {
 export function QuestionnaireWizard({
   questionnaire,
   mode = "eligibility",
+  saveKey,
 }: {
   questionnaire: Questionnaire;
   /** "eligibility" runs the engine on submit; "save" just confirms (personal area). */
   mode?: "eligibility" | "save";
+  /** When set (save mode), completing the form marks this tab done (`type:tab`). */
+  saveKey?: string;
 }) {
   const Q = questionnaire;
   const t = useTranslations() as TFn;
+  const router = useRouter();
   const [answer, setAnswer] = useState<QuestionnaireAnswer>(() => createEmptyAnswer(Q));
   const [step, setStep] = useState(0);
   const [showErrors, setShowErrors] = useState(false);
@@ -75,8 +81,12 @@ export function QuestionnaireWizard({
     setShowErrors(false);
     if (isLast) {
       if (!isComplete(Q, answer)) return;
-      if (mode === "save") setSaved(true); // TODO Phase 4: persist to DB
-      else setResult(assessEligibility(answerToEligibilityInput(answer)));
+      if (mode === "save") {
+        setSaved(true);
+        if (saveKey) void markTabDone(saveKey).then(() => router.refresh()); // unlock + refresh locks
+      } else {
+        setResult(assessEligibility(answerToEligibilityInput(answer)));
+      }
     } else {
       setStep((s) => s + 1);
     }

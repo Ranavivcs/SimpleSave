@@ -143,7 +143,8 @@
       "collateral": "בטחונות",
       "messages": "הודעות ליועץ"
     },
-    "soonDesc": "החלק הזה ייבנה בקרוב."
+    "soonDesc": "החלק הזה ייבנה בקרוב.",
+    "locked": "יש להשלים את השלבים הקודמים כדי לפתוח לשונית זו."
   },
   "documents": {
     "required": "חובה",
@@ -231,6 +232,60 @@
         "creditIssues": "אם סימנת כן — נציג ייצור איתך קשר לבירור.",
         "netMonthlyIncome": "שכיר: ממוצע 3 חודשים אחרונים. עצמאי: ממוצע 3 שנים אחרונות.",
         "additionalProperties": "דירה נוספת יכולה להגדיל את ההון העצמי."
+      }
+    },
+    "mortgageData": {
+      "title": "נתוני משכנתא",
+      "sections": {
+        "status": "סטטוס רכישה",
+        "property": "פרטי הנכס",
+        "finance": "מימון והון עצמי",
+        "extra": "מידע נוסף"
+      },
+      "f": {
+        "purchaseStatus": "סטטוס רכישה",
+        "signDate": "תאריך חתימת החוזה",
+        "moneyNeededWhen": "מתי נדרש הכסף?",
+        "purchaseType": "סוג הרכישה",
+        "priorOwnership": "הייתה בבעלותכם דירה בעבר?",
+        "propertySource": "מקור הנכס",
+        "propertyRegistration": "רישום הנכס",
+        "addrCity": "עיר",
+        "addrStreet": "רחוב",
+        "addrNumber": "מספר בית",
+        "addrApt": "מספר דירה",
+        "rooms": "מספר חדרים",
+        "propertyDetails": "פרטי הנכס",
+        "propertyValue": "שווי הנכס / מחיר הרכישה",
+        "valueSource": "מקור הערכת השווי",
+        "equity": "הון עצמי",
+        "equitySource": "מקור ההון העצמי",
+        "desiredPaymentMin": "החזר חודשי רצוי — מינימום",
+        "desiredPaymentMax": "החזר חודשי רצוי — מקסימום",
+        "priorApplication": "הוגשה בקשה למשכנתא לפני סימפל סייב?",
+        "priorApplicationBanks": "באילו בנקים?",
+        "agreeTransferAccount": "תסכימו להעביר את חשבון הבנק בתנאים טובים יותר?"
+      },
+      "opt": {
+        "searching": "מחפש נכס", "signed": "חתם על חוזה", "aboutToSign": "לקראת חתימה",
+        "thisMonth": "החודש", "twoMonths": "חודשיים", "threePlus": "שלושה חודשים ומעלה",
+        "firstProperty": "נכס ראשון", "housingImprovement": "שיפור דיור", "additional": "נכס נוסף",
+        "contractor": "קבלן", "secondHand": "יד 2", "mechirLamishtaken": "מחיר למשתכן", "selfBuild": "בנייה עצמית",
+        "tabu": "טאבו", "minhal": "מנהל", "chevraMeshakenet": "חברה משכנת",
+        "house": "בית פרטי", "duplex": "דו-משפחתי", "apartment": "דירה בבניין",
+        "self": "הערכה עצמית", "appraiser": "שמאי",
+        "osh": "עו\"ש", "savings": "חיסכון", "loans": "הלוואות", "family": "עזרת משפחה", "keren": "קרן השתלמות", "other": "אחר",
+        "yes": "כן", "no": "לא", "wantDetails": "אשמח לשמוע פרטים"
+      },
+      "cols": {
+        "kind": "סוג", "floor": "קומה", "buildingAge": "גיל המבנה", "areaSqm": "שטח (מ\"ר)",
+        "source": "מקור", "amount": "סכום"
+      },
+      "help": {
+        "purchaseType": "משפיע על אחוז המימון המרבי.",
+        "priorOwnership": "רלוונטי לבדיקת זכאות משרד השיכון.",
+        "propertySource": "משפיע על זכאות: עד שנה מחתימת חוזה ביד 2, עד 3 שנים מקבלן.",
+        "equitySource": "ניתן לפרט סכום לכל מקור."
       }
     },
     "newMortgage": {

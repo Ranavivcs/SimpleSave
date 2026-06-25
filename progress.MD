@@ -63,6 +63,15 @@ The remote feature branches can be deleted once `main` is pushed.
 
 ---
 
+## Session 17 — 2026-06-25 — Personal area: mortgage-data tab + sequential tab locking ✅
+
+- **נתוני משכנתא tab:** `mortgageData` config (status/property/finance/extra; property-details + equity-source tables; conditionals). Rendered via the wizard (`mode="save"`). Refinance-specific fields are a TODO variant.
+- **Sequential tab locking:** order personal → mortgage → approval → collateral → messages; completing a form tab marks it done (cookie via `markTabDone`, `src/lib/tab-progress.ts`) and unlocks the next (`router.refresh()`). **מסמכים is always open** (never locks). Locked tabs show 🔒 + a notice.
+- Still placeholder (need backend): אישור עקרוני (banks/approvals), בטחונות (advisor-entered), document upload + advisor review.
+- tsc + he.json clean. **Committed on `feat/phase-4-personal-area`, NOT pushed** (coordinating with partner's main).
+
+---
+
 ## Session 16 — 2026-06-25 — Personal area: documents tab + UX (guest gate, auth-aware header) ✅
 
 - **מסמכים tab:** `DocumentList` (`src/modules/documents`) renders seeded `DocumentRequirement`, filtered by request type, required-badges + condition notes; upload disabled (Phase 5). `documents.*` i18n.

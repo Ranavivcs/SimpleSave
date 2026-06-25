@@ -1,16 +1,23 @@
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { AccountTabs, ACCOUNT_TABS, type AccountTab } from "@/modules/account/AccountTabs";
+import {
+  AccountTabs,
+  ACCOUNT_TABS,
+  TAB_SEQUENCE,
+  type AccountTab,
+} from "@/modules/account/AccountTabs";
 import { QuestionnaireWizard } from "@/modules/questionnaire/QuestionnaireWizard";
 import { personalData } from "@/modules/questionnaire/content/personalData";
+import { mortgageData } from "@/modules/questionnaire/content/mortgageData";
 import { DocumentList } from "@/modules/documents/DocumentList";
 
 const TYPES = ["new-mortgage", "refinance", "insurance"];
 
 /**
- * Tabbed personal area for one request. Tabs: personal data · mortgage data ·
- * אישור עקרוני · documents · collateral · messages. The personal-data and
- * mortgage-data forms (reusing the questionnaire engine) land in the next slice.
+ * Tabbed personal area for one request. Tabs unlock sequentially (each step
+ * completed unlocks the next) — except מסמכים, which is always open so docs can
+ * be uploaded at any time.
  */
 export default async function RequestPage({
   params,
@@ -23,6 +30,15 @@ export default async function RequestPage({
   const { tab } = await searchParams;
   if (!TYPES.includes(type)) notFound();
 
+  const c = await cookies();
+  const isDone = (tabId: AccountTab) => c.get(`done:${type}:${tabId}`)?.value === "1";
+  const isUnlocked = (tabId: AccountTab): boolean => {
+    if (tabId === "documents") return true; // always open
+    const i = TAB_SEQUENCE.indexOf(tabId);
+    return i <= 0 || TAB_SEQUENCE.slice(0, i).every(isDone);
+  };
+  const unlocked = ACCOUNT_TABS.filter(isUnlocked);
+
   const active: AccountTab = ACCOUNT_TABS.includes(tab as AccountTab)
     ? (tab as AccountTab)
     : "personal";
@@ -31,10 +47,19 @@ export default async function RequestPage({
   return (
     <>
       <h1 className="mb-5 text-2xl font-bold text-brand-900">{t(`requests.${type}`)}</h1>
-      <AccountTabs type={type} active={active} />
-      {active === "personal" ? (
+      <AccountTabs type={type} active={active} unlocked={unlocked} />
+
+      {!isUnlocked(active) ? (
+        <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 text-center">
+          <p className="text-sm text-muted">{t("locked")}</p>
+        </div>
+      ) : active === "personal" ? (
         <div className="mt-6">
-          <QuestionnaireWizard questionnaire={personalData} mode="save" />
+          <QuestionnaireWizard questionnaire={personalData} mode="save" saveKey={`${type}:personal`} />
+        </div>
+      ) : active === "mortgage" ? (
+        <div className="mt-6">
+          <QuestionnaireWizard questionnaire={mortgageData} mode="save" saveKey={`${type}:mortgage`} />
         </div>
       ) : active === "documents" ? (
         <div className="mt-6">

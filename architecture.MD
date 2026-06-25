@@ -2,15 +2,17 @@
 
 > Living document. Describes every layer of the project so any session can understand the build.
 > **Update this file whenever module boundaries, interfaces, or the stack change.**
-> Last updated: 2026-06-25 (session 1 — project kickoff, no code yet).
+> Last updated: 2026-06-25 (session 11 — Phase 3A/3B engines merged to main).
 
 ---
 
 ## 1. Status
 
 **Phase:** Building. Done: Phase 0 (scaffold/home), Phase 1 (calc engine), Phase 2A (Supabase+Prisma), Phase 2B
-(config seeded). Next: Phase 2C (auth/roles) → 2D (admin config UI). See ROADMAP.md / progress.MD handoff.
-**Code written so far:** none. Only tracking files (`rules.MD`, `architecture.MD`, `progress.MD`).
+(config seeded), **Phase 3A** (questionnaire engine) + **Phase 3B core** (eligibility engine) — both merged to `main`.
+Next: Phase 2C (auth/roles) → 2D (admin config UI). See ROADMAP.md / progress.MD handoff.
+**Code so far:** calc / questionnaire / eligibility engines (`src/lib/{calc,questionnaire,eligibility,contracts}`),
+config backbone (Prisma schema + seed), home page + i18n. 34/34 tests green, tsc clean.
 **Tech stack (DECIDED 2026-06-25):** Next.js (React + TypeScript) · **Supabase** (Postgres + Auth/OTP + Storage,
 EU region for Std 13) · Prisma (app data, via the Supabase pooler) · Tailwind 4 · next-intl.
 Hebrew-first RTL, i18n-ready, accessibility-first.

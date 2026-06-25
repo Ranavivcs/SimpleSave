@@ -34,6 +34,7 @@ yarn-error.log*
 
 # env files / secrets (NEVER commit — Privacy Law Std 13)
 .env*
+!.env.example
 
 # vercel
 .vercel

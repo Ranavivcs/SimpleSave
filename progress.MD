@@ -14,11 +14,12 @@
 **Project in one line:** SimpleSave — Israeli mortgage comparison/management platform (new · refinance · insurance), 3 roles (customer/advisor/admin), Hebrew-first RTL, config-driven.
 **Build order:** calc engine → manager/config backbone → customer flow → customer accounts.
 
-**Done (Phases 0, 1, 2A, 2B):**
+**Done (Phases 0, 1, 2A, 2B; + Phase 3A/3B engine cores):**
 - Next.js 16 app (App Router, TS, Tailwind 4, next-intl he/RTL) + home page. `npm run build` green.
 - Pure calc engine `src/lib/calc` (+ `src/lib/contracts`) — 7/7 parity tests vs the simulator.
 - Supabase (EU/Frankfurt) via Prisma 7 (pg driver adapter) — `src/lib/db.ts`.
 - Config schema pushed + **seeded**: 5 dial templates, 18 rate bands, global params, 7 risk rules, 15 doc requirements.
+- **Phase 3A + 3B engine cores (merged to `main`):** pure questionnaire engine (`src/lib/questionnaire`) + eligibility/repayment-capacity engine (`src/lib/eligibility`) + their contracts. 34/34 tests green, tsc clean.
 
 **▶ NEXT — Phase 2C, then 2D:**
 - **2C:** Supabase Auth (email OTP) + roles (customer/advisor/admin) + RLS + admin route guard; create an admin user.
@@ -26,7 +27,7 @@
 - Then **Phase 3** (customer flow) needs a **template→engine resolver**: map DB enums→Hebrew domain values, resolve anchor/margin from `RateBand`, and pick track years from `yearStep` via the optimizer (port the simulator's `calculateMixToRange`).
 
 **How to run (Windows; Bash + PowerShell tools available):**
-- `.env.local` is REQUIRED & gitignored. If missing, recreate from `.env.example` with the EU Supabase values (project ref `iknokcilvdzbmevxhisy`, region `eu-central-1`). `DATABASE_URL`=pooled 6543, `DIRECT_URL`=session pooler 5432, alphanumeric DB password.
+- **First-time setup (REQUIRED before running, on EVERY machine):** copy **`.env.example` → `.env.local`** and fill in the team's shared Supabase keys + DB password. Everyone uses the SAME shared project (ref `iknokcilvdzbmevxhisy`, EU `eu-central-1`), so the values are identical for all teammates. Pooler host is **`aws-1-eu-central-1`**; `DATABASE_URL`=pooled 6543, `DIRECT_URL`=session pooler 5432; alphanumeric DB password. `.env.local` is gitignored — **never commit it** (Std 13).
 - `npm install` (auto `prisma generate`) → `npm run db:push` → `npm run db:seed` → `npm run dev` (localhost:3000) → `npm test` → `npx tsc --noEmit`.
 
 **Prisma 7 gotchas (newer than training — see AGENTS.md):** URLs live in `prisma.config.ts` (DIRECT_URL), not schema · runtime needs `@prisma/adapter-pg` (no `datasourceUrl`) · we added `postinstall: prisma generate` · using `db push` (not `migrate dev`, which needs a shadow DB awkward on the pooler).
@@ -36,19 +37,11 @@
 
 ---
 
-## ⚠️ Open feature branches — HOW TO MERGE TO MAIN (2026-06-25)
+## ✅ Feature branches 3A/3B — MERGED to main (2026-06-25)
 
-Two pure-module branches are open (both tests-green, no code overlap with the backbone):
-- `feat/phase-3a-questionnaire-engine` — questionnaire engine (`src/lib/questionnaire`).
-- `feat/phase-3b-eligibility-engine` — eligibility & repayment-capacity engine (`src/lib/eligibility`).
-
-**They are STACKED: 3B is built on top of 3A.** So merge in this order:
-1. Merge **3A → main** first.
-2. Then merge **3B → main**.
-
-Done in that order, **both merge with zero conflicts**. The only files they both touch are docs
-(`architecture.MD §9`, `messages/he.json`) and those are already reconciled on 3B. Merging 3B before 3A,
-or out of order, *will* force a manual conflict resolution — don't.
+`feat/phase-3a-questionnaire-engine` then `feat/phase-3b-eligibility-engine` (stacked) were merged into `main`
+in order 3A → 3B (fast-forward, **zero conflicts**). Post-merge on `main`: **34/34 tests pass, tsc clean.**
+The remote feature branches can be deleted once `main` is pushed.
 
 ---
 
@@ -60,12 +53,23 @@ or out of order, *will* force a manual conflict resolution — don't.
 - [x] Phase 2B — Config seeded
 - [ ] Phase 2C — Auth (OTP) + roles + admin guard  ← **next**
 - [ ] Phase 2D — Admin config UI
-- [ ] Phase 3 — Customer guest flow (questionnaire → dials)
+- [~] Phase 3 — Customer guest flow: ✅ 3A questionnaire engine · ✅ 3B eligibility core (merged) · ⏳ 3B questionnaire content + adapter · ⏳ 3C dials · ⏳ 3D refi · ⏳ 3E insurance
 - [ ] Phase 4 — Customer accounts & personal area
 - [ ] Phase 5 — Document upload
 - [ ] Phase 6 — Advisor panel
 - [ ] Phase 7 — Insurance module
 - [ ] Phase 8 — Post-mortgage tracking
+
+---
+
+## Session 11 — 2026-06-25 — Merge 3A+3B to main · env.example · 2nd-machine onboarding ✅
+
+**Done — parallel branches landed on `main` + a fresh machine brought online.**
+- Cloned `main` to a new machine and recreated `.env.local` from the shared Supabase values. **Pooler host corrected to `aws-1-eu-central-1`** (was the unknown in setup); both pooled (6543) + session (5432) verified — `DialTemplate` reads back 5 rows.
+- Merged `feat/phase-3a-questionnaire-engine` → `feat/phase-3b-eligibility-engine` into `main` (order 3A→3B, fast-forward, **zero conflicts**). `main` now carries the questionnaire + eligibility engines. **34/34 tests, tsc clean.**
+- Added a tracked **`.env.example`** template (un-ignored via `!.env.example` in `.gitignore`) so a fresh clone has the env scaffold to fill — **no secrets committed**. Onboarding step documented in the handoff "First-time setup" above.
+
+**Next:** Phase 2C (Supabase Auth/OTP + roles + admin route guard), per build order. (3A/3B engine cores done; 3B questionnaire *content* + `QuestionnaireAnswer → EligibilityInput` adapter + 3C dials still to come.)
 
 ---
 

@@ -52,8 +52,11 @@ Hebrew-first RTL, config-driven, modular.
 - Copied all client reference material into `assets/reference/` (simulator-engine.html, system-design-spec.docx, mockups/01–13) — committed for continuity.
 - `gh` CLI not installed; using plain git over HTTPS.
 
+**GitHub connected** ✅
+- Remote: https://github.com/Ranavivcs/SimpleSave (origin, branch `main`).
+- Remote had a stub `# SimpleSave` README; merged with `--allow-unrelated-histories -X ours` (kept our richer README), pushed `4f05b21`.
+
 **Open / blocked**
-- ⏳ Need the GitHub repo URL from client to add `origin` and push.
 - ⚠️ 3 discrepancies still unresolved (repayment %, age cap, credit lookback) — see Session 2.
 - Still missing attachments: insurance rate Excel, the 3 JS files (document-engine.js / insurance-rates.js / document-worker.js), consent PDFs.
 - **New decision raised:** is there an existing prototype codebase we should port, given the mockups are of a running app?

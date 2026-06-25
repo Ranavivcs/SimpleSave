@@ -8,7 +8,7 @@
 
 ## 1. Status
 
-**Phase:** Pre-build / awaiting reference data from client.
+**Phase:** Ready to build — reference data gathered, key decisions resolved (see §6). Awaiting go-ahead to scaffold.
 **Code written so far:** none. Only tracking files (`rules.MD`, `architecture.MD`, `progress.MD`).
 **Tech stack (DECIDED 2026-06-25):** Next.js (React + TypeScript) full-stack · PostgreSQL · Prisma ORM.
 Hebrew-first RTL, i18n-ready, accessibility-first. Hosting TBD.
@@ -80,14 +80,21 @@ Hebrew-first RTL, i18n-ready, accessibility-first. Hosting TBD.
 
 ---
 
-## 6. ⛔ Pending Decisions (block implementation — ask user)
+## 6. Decisions (resolved unless marked)
 
-1. ✅ **Tech stack** — DECIDED: Next.js (React+TS) + PostgreSQL + Prisma. Hosting still TBD.
-2. **Repo/folder structure** — single Next.js app (decide app-router layout at scaffold time).
-3. **i18n library** and RTL approach.
-4. **Calculation formulas** — confirm Shpitzer & Equal-Principal formulas, and the exact **risk score** definition.
-5. **Default dial/mix definitions** — the 5 starting mixes and their tracks.
-6. **Reference data** — interest rate tables, document requirement lists, insurance company list, gov.il links, sample bank reports.
+1. ✅ **Tech stack** — Next.js (React+TS) + PostgreSQL + Prisma. Hosting TBD.
+2. ✅ **Build mode** — BUILD FRESH (no accessible prototype; Base44 version inaccessible). Port the simulator's
+   calc logic into a clean module; spec = requirements; mockups = design.
+3. ✅ **Calculation formulas** — taken from the simulator: `PMT`/`calcRoute` (Shpitzer + Equal-Principal, linkage,
+   balloon/grace); risk score = share-weighted `riskRules` (see simulator-engine.html).
+4. ✅ **Default dial/mix definitions** — the 5 שעונים from `CLOCK_TEMPLATES` (clock1–5) in the simulator.
+5. ✅ **Reference data** — rate tables, doc lists, parser keywords, consent forms all in hand (`assets/reference/`,
+   `assets/forms/`). Open item: real insurance tariff numbers (were in missing insurance-rates.js) — obtain at
+   Insurance module (module 6).
+6. ✅ **Business-rule defaults** (admin-editable, not hardcoded): max repayment 40% · loan-term age cap 85 ·
+   credit-history lookback 7 yr · expected annual index 3% · non-owner borrower counts 50% of net income.
+7. ⏳ **Repo/folder structure** — single Next.js app; decide app-router layout at scaffold time.
+8. ⏳ **i18n library** + RTL approach — decide at scaffold time (Hebrew-first, structure for ru/fr/en).
 
 ---
 

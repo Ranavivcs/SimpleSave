@@ -39,6 +39,28 @@ Hebrew-first RTL, config-driven, modular.
 
 ---
 
+## Session 4 — 2026-06-25 — Key decisions resolved + consent forms received
+
+**Client rulings (now binding):**
+1. **No separate JS files exist** — stop waiting on document-engine.js / insurance-rates.js / document-worker.js.
+   The simulator HTML is the source of truth. *(Caveat: the actual insurance tariff numbers were in the external
+   insurance-rates.js, which we don't have. Re-confirm/obtain the real tariff tables when we reach the Insurance
+   module — module 6, late in build order. Not blocking now.)*
+2. **Discrepancies are non-issues** — values are config-driven anyway. Defaults set as admin-editable params:
+   max repayment **40%**, loan-term age cap **85**, credit-history lookback **7 years**. No longer "open."
+3. **No existing prototype to port** — only on Base44 (no access). → **BUILD FRESH in Next.js.**
+   Engine = port the simulator's calc logic; requirements = the spec; design = the mockups.
+
+**Received & committed:** 7 consent/authorization PDFs → `assets/forms/`
+- Bank authorization (כתב הסמכה): Leumi, Hapoalim (2 versions), Mizrahi, Discount, Beinleumi.
+- Self-employed income form: אישור רו"ח (לשכת רו"ח nusach).
+- (Not yet provided, may be needed later: authorization forms for Jerusalem / Mercantile / Otzar HaChayal / Igud; insurance data-release consent form.)
+
+**Status: effectively unblocked to start building.** Next step = plan the architecture/scaffold + Module 1
+(Questionnaire + Dials guest flow), pending client go-ahead per rules.MD #3.
+
+---
+
 ## Session 3 — 2026-06-25 — Mockups reviewed + repo initialized
 
 **Done**

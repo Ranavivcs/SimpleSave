@@ -14,17 +14,18 @@
 **Project in one line:** SimpleSave — Israeli mortgage comparison/management platform (new · refinance · insurance), 3 roles (customer/advisor/admin), Hebrew-first RTL, config-driven.
 **Build order:** calc engine → manager/config backbone → customer flow → customer accounts.
 
-**Done (Phases 0, 1, 2A, 2B; + Phase 3A/3B engine cores):**
+**Done (Phases 0, 1, 2A, 2B, 2C; + Phase 3A/3B engine cores):**
 - Next.js 16 app (App Router, TS, Tailwind 4, next-intl he/RTL) + home page. `npm run build` green.
 - Pure calc engine `src/lib/calc` (+ `src/lib/contracts`) — 7/7 parity tests vs the simulator.
 - Supabase (EU/Frankfurt) via Prisma 7 (pg driver adapter) — `src/lib/db.ts`.
 - Config schema pushed + **seeded**: 5 dial templates, 18 rate bands, global params, 7 risk rules, 15 doc requirements.
 - **Phase 3A + 3B engine cores (merged to `main`):** pure questionnaire engine (`src/lib/questionnaire`) + eligibility/repayment-capacity engine (`src/lib/eligibility`) + their contracts. 34/34 tests green, tsc clean.
+- **Phase 2C (auth) — DONE:** Supabase email-OTP login (`/login`) · `Profile` + `UserRole` (customer/advisor/admin) · app-layer guards (`src/lib/auth`) · `/admin` gated by `proxy.ts` + `requireAdmin()`. Admin `ranaviv.cs@gmail.com` bootstrapped; RLS on `Profile` (defense-in-depth). **Guest calculator stays public.**
 
-**▶ NEXT — Phase 2C, then 2D:**
-- **2C:** Supabase Auth (email OTP) + roles (customer/advisor/admin) + RLS + admin route guard; create an admin user.
-- **2D:** Admin config UI — CRUD over the seeded config (dial editor = mockup 4, rate tables = mockup 6, global params). Put it under `src/modules/admin`.
-- Then **Phase 3** (customer flow) needs a **template→engine resolver**: map DB enums→Hebrew domain values, resolve anchor/margin from `RateBand`, and pick track years from `yearStep` via the optimizer (port the simulator's `calculateMixToRange`).
+**▶ NEXT — Phase 2D:**
+- **2D:** Admin config UI — CRUD over the seeded config (dial editor = mockup 4, rate tables = mockup 6, global params). Put it under `src/modules/admin`, rendered inside the now-guarded `/admin` area.
+- Then **Phase 3** (customer flow) needs a **template→engine resolver**: map DB enums→Hebrew domain values, resolve anchor/margin from `RateBand`, and pick track years from `yearStep` via the optimizer (port the simulator's `calculateMixToRange`). (3A questionnaire engine + 3B eligibility core already merged.)
+- **Auth for new admin pages:** place them under `/admin` (covered by `requireAdmin()` in `src/app/admin/layout.tsx`); re-check role in any server mutation (Prisma bypasses RLS).
 
 **How to run (Windows; Bash + PowerShell tools available):**
 - **First-time setup (REQUIRED before running, on EVERY machine):** copy **`.env.example` → `.env.local`** and fill in the team's shared Supabase keys + DB password. Everyone uses the SAME shared project (ref `iknokcilvdzbmevxhisy`, EU `eu-central-1`), so the values are identical for all teammates. Pooler host is **`aws-1-eu-central-1`**; `DATABASE_URL`=pooled 6543, `DIRECT_URL`=session pooler 5432; alphanumeric DB password. `.env.local` is gitignored — **never commit it** (Std 13).
@@ -51,14 +52,36 @@ The remote feature branches can be deleted once `main` is pushed.
 - [x] Phase 1 — Calculation engine (pure, parity-tested)
 - [x] Phase 2A — Supabase + Prisma wired
 - [x] Phase 2B — Config seeded
-- [ ] Phase 2C — Auth (OTP) + roles + admin guard  ← **next**
-- [ ] Phase 2D — Admin config UI
+- [x] Phase 2C — Auth (OTP) + roles + admin guard
+- [ ] Phase 2D — Admin config UI  ← **next**
 - [~] Phase 3 — Customer guest flow: ✅ 3A questionnaire engine · ✅ 3B eligibility core (merged) · ⏳ 3B questionnaire content + adapter · ⏳ 3C dials · ⏳ 3D refi · ⏳ 3E insurance
 - [ ] Phase 4 — Customer accounts & personal area
 - [ ] Phase 5 — Document upload
 - [ ] Phase 6 — Advisor panel
 - [ ] Phase 7 — Insurance module
 - [ ] Phase 8 — Post-mortgage tracking
+
+---
+
+## Session 12 — 2026-06-25 — Phase 2C: Auth (email OTP) + roles + admin guard ✅
+
+**Done — passwordless auth, role model, and a protected admin area. Guest flow untouched.**
+- **Supabase clients** (`src/lib/supabase/{server,client,middleware}.ts`) via `@supabase/ssr` — cookie-based, SSR-safe.
+- **`src/proxy.ts`** (Next 16 renamed the `middleware` convention → `proxy`): refreshes the session app-wide and redirects anonymous `/admin/*` hits to `/login`. Public routes (home/questionnaire/dials) pass through — **anonymous calculator stays open**.
+- **Role model:** Prisma `Profile` (`id`=auth uuid · `email` · `role` `UserRole{CUSTOMER|ADVISOR|ADMIN}`) pushed to DB; single source of truth for authz.
+- **App-layer guards** (`src/lib/auth/session.ts`): `getSessionUser`/`getProfile`/`requireUser`/`requireRole`/`requireAdmin`. Enforced in the app layer because Prisma's pooled connection **bypasses RLS** (RLS = defense-in-depth).
+- **Login** (`/login` + `src/modules/auth`): email → OTP code → verify, via server actions (httpOnly session cookies). All copy in `messages/he.json` (`auth.*`); the header already linked here.
+- **Admin area** (`/admin`): `layout.tsx` calls `requireAdmin()` (the real role gate) + logout; placeholder page for the 2D config UI (`admin.*` strings).
+- **Bootstrap:** `npm run create-admin -- <email>` (service_role) → created auth user + Profile ADMIN for **ranaviv.cs@gmail.com** (id `73f29084…`). Idempotent (promotes existing users).
+- **RLS:** `prisma/rls-profile.sql` — RLS on `Profile` + `profile_self_read` policy (applied & verified).
+- **Env:** code now consumes `NEXT_PUBLIC_SUPABASE_ANON_KEY` + `SUPABASE_SERVICE_ROLE_KEY` (already in `.env.example`). New deps: `@supabase/ssr`, `@supabase/supabase-js`.
+- **Verify:** `npm run build` ✓ (`/` static, `/login` + `/admin` dynamic, Proxy active), `tsc` clean, **34/34 tests** green.
+
+**Deferred (defense-in-depth, not blocking):** custom access-token hook to put `role` in the JWT (for direct-client/RLS authz); per-role RLS on the config tables. The app-layer guard is the primary control.
+
+**Not committed** — awaiting approval (per [[ask-before-commit-push]]).
+
+**Next:** Phase 2D — admin config UI (CRUD over seeded config) under the guarded `/admin`.
 
 ---
 

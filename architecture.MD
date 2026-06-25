@@ -2,17 +2,18 @@
 
 > Living document. Describes every layer of the project so any session can understand the build.
 > **Update this file whenever module boundaries, interfaces, or the stack change.**
-> Last updated: 2026-06-25 (session 11 — Phase 3A/3B engines merged to main).
+> Last updated: 2026-06-25 (session 12 — Phase 2C auth + roles + admin guard).
 
 ---
 
 ## 1. Status
 
 **Phase:** Building. Done: Phase 0 (scaffold/home), Phase 1 (calc engine), Phase 2A (Supabase+Prisma), Phase 2B
-(config seeded), **Phase 3A** (questionnaire engine) + **Phase 3B core** (eligibility engine) — both merged to `main`.
-Next: Phase 2C (auth/roles) → 2D (admin config UI). See ROADMAP.md / progress.MD handoff.
+(config seeded), **Phase 2C** (auth: email-OTP + roles + admin guard), **Phase 3A** (questionnaire engine) +
+**Phase 3B core** (eligibility engine). Next: Phase 2D (admin config UI). See ROADMAP.md / progress.MD handoff.
 **Code so far:** calc / questionnaire / eligibility engines (`src/lib/{calc,questionnaire,eligibility,contracts}`),
-config backbone (Prisma schema + seed), home page + i18n. 34/34 tests green, tsc clean.
+config backbone (Prisma schema + seed), auth (Supabase OTP + `Profile`/roles + `/admin` guard), home page + i18n.
+34/34 tests green, tsc clean.
 **Tech stack (DECIDED 2026-06-25):** Next.js (React + TypeScript) · **Supabase** (Postgres + Auth/OTP + Storage,
 EU region for Std 13) · Prisma (app data, via the Supabase pooler) · Tailwind 4 · next-intl.
 Hebrew-first RTL, i18n-ready, accessibility-first.
@@ -79,7 +80,7 @@ Hebrew-first RTL, i18n-ready, accessibility-first.
 
 ## 5. Key Data Entities
 
-`User` · `Borrower` · `MortgageRequest` (new/refi/insurance) · `QuestionnaireAnswer` · `MortgageMix` (5 dials) · `MortgageTrack` · `Document` · `BankApproval` · `InsuranceOffer` · `ActiveMortgage` · `MortgageDisbursement` · `Advisor` · `Task` · `InterestRateTable` · `GlobalParameters`
+`Profile` (auth/role) · `User` · `Borrower` · `MortgageRequest` (new/refi/insurance) · `QuestionnaireAnswer` · `MortgageMix` (5 dials) · `MortgageTrack` · `Document` · `BankApproval` · `InsuranceOffer` · `ActiveMortgage` · `MortgageDisbursement` · `Advisor` · `Task` · `InterestRateTable` · `GlobalParameters`
 
 > Detailed field-level schema TBD per entity as each module is built. Add schema sections here as they solidify.
 
@@ -111,23 +112,29 @@ Hebrew-first RTL, i18n-ready, accessibility-first.
 ```
 simplesave/
 ├─ src/
-│  ├─ app/                 # App Router (layout.tsx = he/rtl, page.tsx = home)
+│  ├─ app/                 # App Router (layout.tsx = he/rtl, page.tsx = home; login/, admin/)
+│  ├─ proxy.ts             # ✅ Next-16 "proxy" (was middleware): session refresh + /admin gate
 │  ├─ components/layout/   # shared UI (SiteHeader)
-│  ├─ modules/<feature>/   # one self-contained folder per module (home; admin next)
+│  ├─ modules/             # one self-contained folder per feature (home; auth; admin next)
 │  ├─ lib/
 │  │  ├─ calc/             # ✅ ported calc engine — pure, testable (finance/route/mix/risk)
 │  │  ├─ questionnaire/    # ✅ config-driven wizard engine — pure, testable (conditions/validation/engine)
 │  │  ├─ eligibility/      # ✅ eligibility & repayment-capacity — pure, testable (income/property/age)
+│  │  ├─ supabase/         # ✅ Supabase SSR clients (server/client/proxy helper) — Phase 2C
+│  │  ├─ auth/             # ✅ server-side auth guards (session/getProfile/requireAdmin) — Phase 2C
 │  │  ├─ contracts/        # ✅ typed objects between layers (mortgage.ts, questionnaire.ts, eligibility.ts)
 │  │  └─ db.ts             # ✅ Prisma singleton (pg driver adapter, pooled)
 │  └─ i18n/                # config.ts, request.ts
 ├─ messages/he.json        # all UI strings (externalized)
 ├─ prisma/
-│  ├─ schema.prisma        # ✅ config-backbone models
-│  └─ seed.mjs             # ✅ seeds config from simulator defaults
+│  ├─ schema.prisma        # ✅ config-backbone models + Profile/UserRole (Phase 2C)
+│  ├─ seed.mjs             # ✅ seeds config from simulator defaults
+│  ├─ create-admin.mjs     # ✅ bootstrap/promote an ADMIN (service_role) — Phase 2C
+│  └─ rls-profile.sql      # ✅ RLS on Profile (defense-in-depth) — Phase 2C
 ├─ prisma.config.ts        # ✅ Prisma 7 connection config (DIRECT_URL)
 ├─ public/logo.png
 ├─ assets/                 # logo source, forms/, reference/ (client material)
+├─ .env.example            # ✅ env template (tracked, no secrets) — copy to .env.local
 └─ .env.local              # secrets (gitignored) — Supabase/Prisma URLs + keys
 ```
 
@@ -157,3 +164,8 @@ runtime via `@prisma/adapter-pg` with the pooled `DATABASE_URL` (6543). Schema s
 | Admin | Full control: dials, rates, advisor assignment, global parameters |
 
 Shared single login entry (personal area), OTP-based.
+
+**Enforcement (Phase 2C):** roles live in `Profile.role`; email-OTP login via Supabase at `/login`. The admin area
+`/admin` is gated by `src/proxy.ts` (anonymous → `/login`) **and** `requireAdmin()` in `src/app/admin/layout.tsx`
+(the role check). Authorization is enforced in the **app layer** — Prisma's pooled connection bypasses Postgres RLS,
+which is kept as defense-in-depth (`Profile` self-read policy). Any server mutation must re-check role server-side.

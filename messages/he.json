@@ -39,6 +39,28 @@
     "ltvExceeded": "סכום ההלוואה חורג משיעור המימון המרבי ({ltvPct}%)",
     "insufficientEquity": "ההון העצמי נמוך מהנדרש (לפחות {requiredEquity} ₪)"
   },
+  "auth": {
+    "loginTitle": "כניסה / הרשמה",
+    "loginSubtitle": "נשלח אליכם קוד חד-פעמי לאימות בכתובת האימייל",
+    "emailLabel": "כתובת אימייל",
+    "emailPlaceholder": "name@example.com",
+    "sendCode": "שליחת קוד",
+    "sending": "שולח...",
+    "codeLabel": "קוד אימות",
+    "codeHint": "הזינו את הקוד שנשלח לכתובת {email}",
+    "verify": "אימות וכניסה",
+    "verifying": "מאמת...",
+    "errorSend": "שליחת הקוד נכשלה. בדקו את הכתובת ונסו שוב.",
+    "errorVerify": "הקוד שגוי או שפג תוקפו. נסו שוב.",
+    "errorGeneric": "אירעה שגיאה. נסו שוב."
+  },
+  "admin": {
+    "areaTitle": "אזור ניהול",
+    "welcome": "ברוכים הבאים לאזור הניהול",
+    "comingSoon": "ממשק הגדרת התצורה (שעונים, טבלאות ריבית ופרמטרים) ייבנה בשלב 2D.",
+    "loggedInAs": "מחובר כ-{email}",
+    "logout": "יציאה"
+  },
   "services": {
     "newMortgage": {
       "title": "משכנתא חדשה",

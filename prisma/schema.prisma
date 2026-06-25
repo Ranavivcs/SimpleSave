@@ -171,3 +171,27 @@ model DocumentRequirement {
 
   updatedAt DateTime @updatedAt
 }
+
+// ---------- auth: roles & profiles (Phase 2C) ----------
+
+enum UserRole {
+  CUSTOMER // לקוח
+  ADVISOR // יועץ
+  ADMIN // מנהל
+}
+
+// App-side user profile. `id` equals the Supabase auth.users id (kept in sync by
+// the OTP login flow + create-admin script; auth.users lives in Supabase's auth
+// schema, outside Prisma, so there is no cross-schema FK here).
+//
+// `role` is the single source of truth for authorization, enforced in the app
+// layer — Prisma uses a privileged pooled connection that bypasses RLS.
+model Profile {
+  id       String   @id @db.Uuid
+  email    String   @unique
+  role     UserRole @default(CUSTOMER)
+  fullName String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

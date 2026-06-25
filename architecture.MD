@@ -121,6 +121,8 @@ simplesave/
 │  │  ├─ calc/             # ✅ ported calc engine — pure, testable (finance/route/mix/risk)
 │  │  ├─ questionnaire/    # ✅ config-driven wizard engine — pure, testable (conditions/validation/engine)
 │  │  ├─ eligibility/      # ✅ eligibility & repayment-capacity — pure, testable (income/property/age)
+│  │  ├─ dials/            # ✅ dial resolver (config→calc→5 dials) + DB loader — Phase 3C
+│  │  ├─ site-url.ts       # ✅ app origin for Supabase email redirects — Phase 2C fix
 │  │  ├─ supabase/         # ✅ Supabase SSR clients (server/client/proxy helper) — Phase 2C
 │  │  ├─ auth/             # ✅ server-side auth guards (session/getProfile/requireAdmin) — Phase 2C
 │  │  ├─ contracts/        # ✅ typed objects between layers (mortgage.ts, questionnaire.ts, eligibility.ts)

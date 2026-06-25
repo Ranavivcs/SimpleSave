@@ -63,6 +63,16 @@ The remote feature branches can be deleted once `main` is pushed.
 
 ---
 
+## Session 14 — 2026-06-25 — Consolidate main: 3C resolver + auth magic-link fix ✅
+
+- **3C resolver merged to `main`** (`src/lib/dials`: resolver/optimizer/rates/loadConfig + tests). Pure; input `ResolveDialsInput {loanAmount, purpose, minPay, maxPay}`. Dials *screen* still pending (partner).
+- **Auth magic-link fix:** `signInWithOtp` now sets `emailRedirectTo` to the app origin (`src/lib/site-url.ts`) + new `/auth/confirm` route (PKCE/token verify). Dev port pinned to **3001**. Was landing on `:3000` (playNext) because Supabase Site URL default was used. **Dashboard TODO (user):** set Supabase Auth → URL Config → Site URL `http://localhost:3001` + add Redirect URL `http://localhost:3001/**`.
+- `main` now has 2C + 3A/3B engines + 3B questionnaire flow + 3C resolver + auth fix. 40/40 tests, tsc clean.
+
+**Next:** Phase 4 — customer **Personal Area** (אזור אישי): requests list → tabs (personal data per-borrower · mortgage data · אישור עקרוני · documents · collateral · messages); carry-over questionnaire answers; first-home משרד השיכון זכאות ("ותיקים בארץ", gov.il). Then Admin/Advisor/Customer dashboards (mockups pending).
+
+---
+
 ## Session 13 — 2026-06-25 — POC: production questionnaire flow (Phase 3B) ✅
 
 **Done — Home → Questionnaire → (dials seam) as a real, clickable flow.** Branch `feat/phase-3b-questionnaire-flow` (off `main`, with the partner's wizard framework `feat/phase-3a-wizard-ui` merged in — no duplication).

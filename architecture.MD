@@ -114,7 +114,8 @@ simplesave/
 │  ├─ modules/<feature>/   # one self-contained folder per module (home; admin next)
 │  ├─ lib/
 │  │  ├─ calc/             # ✅ ported calc engine — pure, testable (finance/route/mix/risk)
-│  │  ├─ contracts/        # ✅ typed objects between layers (mortgage.ts)
+│  │  ├─ questionnaire/    # ✅ config-driven wizard engine — pure, testable (conditions/validation/engine)
+│  │  ├─ contracts/        # ✅ typed objects between layers (mortgage.ts, questionnaire.ts)
 │  │  └─ db.ts             # ✅ Prisma singleton (pg driver adapter, pooled)
 │  └─ i18n/                # config.ts, request.ts
 ├─ messages/he.json        # all UI strings (externalized)

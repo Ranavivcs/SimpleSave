@@ -18,6 +18,21 @@
     "enterSystem": "כניסה למערכת",
     "howItWorksTitle": "איך זה עובד?"
   },
+  "validation": {
+    "required": "שדה חובה",
+    "type": "ערך לא תקין",
+    "minLength": "יש להזין לפחות {min} תווים",
+    "maxLength": "ניתן להזין עד {max} תווים",
+    "pattern": "הפורמט אינו תקין",
+    "min": "הערך חייב להיות לפחות {min}",
+    "max": "הערך חייב להיות עד {max}",
+    "integer": "יש להזין מספר שלם",
+    "minSelected": "יש לבחור לפחות {min}",
+    "maxSelected": "ניתן לבחור עד {max}",
+    "notInOptions": "נבחר ערך שאינו קיים ברשימה",
+    "minRows": "יש להוסיף לפחות {min} שורות",
+    "maxRows": "ניתן להוסיף עד {max} שורות"
+  },
   "services": {
     "newMortgage": {
       "title": "משכנתא חדשה",

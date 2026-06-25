@@ -67,6 +67,29 @@
 
 ---
 
+## Session 9 — 2026-06-25 — Phase 3A: questionnaire engine (framework) ✅
+
+**Done — the pure, config-driven questionnaire framework. Parallel track to the coworker's Phase 2B (no file overlap).**
+- `src/lib/contracts/questionnaire.ts` — typed contracts: `Questionnaire` / `QuestionnaireSection` / field union (text · number · date · yesno · choice · range · table) · `Condition` (all/any/not + field operators, `global`/`borrower`/`auto` scope) · `QuestionnaireAnswer` (`values` + `borrowers[]`) · `ValidationError`.
+- `src/lib/questionnaire/`:
+  - `conditions.ts` — `evalCondition` (boolean expression tree; ops eq/ne/in/gt../includes/truthy/empty…; scope resolution) + `isEmptyValue`.
+  - `validation.ts` — `validateField` (per-type constraints → `ValidationError` carrying an i18n `messageKey` + interpolation params, **never raw text**). `minRows`/`minSelected` act as effective "at least N" gates for config authors.
+  - `engine.ts` — answer construction (`createEmptyAnswer`, `setBorrowerCount` clamped 1–5), visibility (`visibleSections`, `renderableFields` with per-borrower expansion), validation (`validateSection`, `validateQuestionnaire`, `isComplete`, `firstInvalidSectionIndex`).
+  - `index.ts` — barrel.
+- `messages/he.json` — added a `validation.*` namespace (engine emits keys only; Hebrew text lives here = single source of truth, i18n-ready).
+- **Tests:** `src/lib/questionnaire/questionnaire.test.ts` — 13 tests (operators + scope, visibility, per-borrower expansion, every field type, conditional table with nested row errors, completeness). **20/20 total pass** (calc + questionnaire); my files are `tsc`-clean.
+- **Pure** — no React/Next/DB imports; the eventual wizard UI renders on top of these helpers. Output `QuestionnaireAnswer` is the typed contract the Phase-1 calc engine consumes.
+
+**Scope boundary (per ROADMAP):** built **3A only** (the framework). Did **not** build 3B (new-mortgage question content) or 3C (dials screen) — those consume real Phase-2 config (dial templates, rate tables) the coworker is defining now.
+
+**Env note:** `node_modules` was empty → ran `npm install`. The `prisma generate` postinstall fails locally without `.env.local` (Supabase), so `src/lib/db.ts` shows a `tsc` error **on my machine only** — it's the coworker's Phase-2 file with a generated client, clean on theirs. Reverted the incidental `package-lock.json` churn from the install.
+
+**Not committed** — on branch `feat/phase-3a-questionnaire-engine`, awaiting approval (per [[ask-before-commit-push]]).
+
+**Next:** on user go-ahead — commit + open a PR for 3A. Then 3B (new-mortgage questionnaire config + UI) once Phase 2 config lands.
+
+---
+
 ## Session 8 — 2026-06-25 — Phase 2A: Supabase + Prisma wired ✅
 
 **Done — DB layer live and verified end-to-end.**

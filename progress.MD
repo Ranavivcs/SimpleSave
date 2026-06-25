@@ -36,6 +36,22 @@
 
 ---
 
+## ⚠️ Open feature branches — HOW TO MERGE TO MAIN (2026-06-25)
+
+Two pure-module branches are open (both tests-green, no code overlap with the backbone):
+- `feat/phase-3a-questionnaire-engine` — questionnaire engine (`src/lib/questionnaire`).
+- `feat/phase-3b-eligibility-engine` — eligibility & repayment-capacity engine (`src/lib/eligibility`).
+
+**They are STACKED: 3B is built on top of 3A.** So merge in this order:
+1. Merge **3A → main** first.
+2. Then merge **3B → main**.
+
+Done in that order, **both merge with zero conflicts**. The only files they both touch are docs
+(`architecture.MD §9`, `messages/he.json`) and those are already reconciled on 3B. Merging 3B before 3A,
+or out of order, *will* force a manual conflict resolution — don't.
+
+---
+
 ## Phase status (see ROADMAP.md for detail)
 
 - [x] Phase 0 — Setup & foundation (scaffold, i18n/RTL, home page)

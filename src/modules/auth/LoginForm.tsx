@@ -23,6 +23,7 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
   if (!sendState.sent) {
     return (
       <form action={sendAction} className="flex flex-col gap-4">
+        {redirectTo && <input type="hidden" name="redirect" value={redirectTo} />}
         <label className="flex flex-col gap-1 text-sm font-medium text-slate-700">
           {t("emailLabel")}
           <input

@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getSiteUrl } from "@/lib/site-url";
 
 export type AuthState = {
   sent?: boolean;
@@ -18,10 +19,16 @@ export async function sendOtp(
   const email = String(formData.get("email") ?? "").trim();
   if (!email) return { errorKey: "errorSend" };
 
+  const next = String(formData.get("redirect") ?? "") || "/";
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { shouldCreateUser: true },
+    options: {
+      shouldCreateUser: true,
+      // Send the magic link back to THIS app's origin (not Supabase's dashboard
+      // Site URL), so it can't open whatever else is running on another port.
+      emailRedirectTo: `${await getSiteUrl()}/auth/confirm?next=${encodeURIComponent(next)}`,
+    },
   });
   if (error) return { email, errorKey: "errorSend" };
 

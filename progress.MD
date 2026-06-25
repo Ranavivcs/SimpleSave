@@ -54,12 +54,26 @@ The remote feature branches can be deleted once `main` is pushed.
 - [x] Phase 2B — Config seeded
 - [x] Phase 2C — Auth (OTP) + roles + admin guard
 - [ ] Phase 2D — Admin config UI  ← **next**
-- [~] Phase 3 — Customer guest flow: ✅ 3A questionnaire engine · ✅ 3B eligibility core (merged) · ⏳ 3B questionnaire content + adapter · ⏳ 3C dials · ⏳ 3D refi · ⏳ 3E insurance
+- [~] Phase 3 — Customer guest flow: ✅ 3A engine · ✅ 3B eligibility core · ✅ 3B new-mortgage questionnaire UI + flow · 🔜 3C dials (resolver done, screen pending) · ⏳ 3D refi · ⏳ 3E insurance
 - [ ] Phase 4 — Customer accounts & personal area
 - [ ] Phase 5 — Document upload
 - [ ] Phase 6 — Advisor panel
 - [ ] Phase 7 — Insurance module
 - [ ] Phase 8 — Post-mortgage tracking
+
+---
+
+## Session 13 — 2026-06-25 — POC: production questionnaire flow (Phase 3B) ✅
+
+**Done — Home → Questionnaire → (dials seam) as a real, clickable flow.** Branch `feat/phase-3b-questionnaire-flow` (off `main`, with the partner's wizard framework `feat/phase-3a-wizard-ui` merged in — no duplication).
+- Promoted the wizard out of `/demo`: generic `QuestionnaireWizard` now takes the questionnaire as a **data prop** (reused by demo + production; the eligibility mapper is imported inside the client component, since functions can't cross the server→client boundary).
+- Real **new-mortgage** content (`src/modules/questionnaire/content/newMortgage.ts`): 3 sections (property/finance/borrowers), 11 fields incl. purchase type (5 options), conditional extra-income, per-borrower (1–5) birthdate/employment/income/mortgagor + help tooltips. Config-driven, i18n keys only.
+- Production route `src/app/questionnaire/[variant]/page.tsx`: new-mortgage live; refinance/insurance → "בקרוב"; unknown → 404. Home cards now land here.
+- On submit: runs the 3B eligibility engine → summary (max loan / equity / capacity / term + violations) + a **disabled seam CTA** to the dials (3C), to be wired once the resolver/route land.
+- i18n: `wizard.*` (chrome) + `questionnaire.*` (content). Shared `answerToEligibilityInput` mapper (`src/modules/questionnaire/mappers.ts`).
+- **Verified at runtime** (`next dev`, :3001): `/` 200 (3 services) · `/questionnaire/new-mortgage` 200 (wizard renders) · `/questionnaire/refinance` 200 (coming soon) · `/admin` 307→/login (guard holds; guest flow public). Build clean, tsc clean, **34/34 tests**.
+
+**Seam for 3C:** the dials resolver consumes `ResolveDialsInput { loanAmount, purpose, minPay, maxPay }` (see `src/lib/dials`). Wire `wizard.toDials` to it once 3C's dials *screen* + route land (3C part 1 = resolver only).
 
 ---
 

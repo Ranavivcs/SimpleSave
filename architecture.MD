@@ -118,6 +118,7 @@ simplesave/
 │  │  ├─ calc/             # ✅ ported calc engine — pure, testable (finance/route/mix/risk)
 │  │  ├─ questionnaire/    # ✅ config-driven wizard engine — pure, testable (conditions/validation/engine)
 │  │  ├─ eligibility/      # ✅ eligibility & repayment-capacity — pure, testable (income/property/age)
+│  │  ├─ dials/            # ✅ config→engine resolver + term optimizer (loadConfig = only DB file)
 │  │  ├─ contracts/        # ✅ typed objects between layers (mortgage.ts, questionnaire.ts, eligibility.ts)
 │  │  └─ db.ts             # ✅ Prisma singleton (pg driver adapter, pooled)
 │  └─ i18n/                # config.ts, request.ts

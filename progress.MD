@@ -53,12 +53,29 @@ The remote feature branches can be deleted once `main` is pushed.
 - [x] Phase 2B — Config seeded
 - [ ] Phase 2C — Auth (OTP) + roles + admin guard  ← **next**
 - [ ] Phase 2D — Admin config UI
-- [~] Phase 3 — Customer guest flow: ✅ 3A questionnaire engine · ✅ 3B eligibility core (merged) · ⏳ 3B questionnaire content + adapter · ⏳ 3C dials · ⏳ 3D refi · ⏳ 3E insurance
+- [~] Phase 3 — Customer guest flow: ✅ 3A questionnaire engine · ✅ 3B eligibility core (merged) · ✅ 3C resolver (config→engine) · ⏳ 3B questionnaire content + adapter · ⏳ 3C dials UI · ⏳ 3D refi · ⏳ 3E insurance
 - [ ] Phase 4 — Customer accounts & personal area
 - [ ] Phase 5 — Document upload
 - [ ] Phase 6 — Advisor panel
 - [ ] Phase 7 — Insurance module
 - [ ] Phase 8 — Post-mortgage tracking
+
+---
+
+## Session 12 — 2026-06-25 — Phase 3C (part 1): dial resolver (config→engine) ✅
+
+**Done — the bridge from seeded config to the calc engine. Pure + tested. NO UI yet (next step).**
+- `src/lib/dials/` (branched off `main` `0e8294f`, which already has 3A/3B):
+  - `contracts.ts` — config DTOs (decoupled from Prisma) + `ResolveDialsInput` / `ResolvedDial`.
+  - `rates.ts` — enum maps (DB→engine Hebrew), `rateBandKey`, `allowedYears`/`candidateYears`, `resolveRate` (ports the simulator's `generalRateKey` / `allowedYears` / `generalRateForRoute`).
+  - `optimizer.ts` — `optimizeYears` (port of `calculateMixToRange`: coarse sweep + local refine + shorten-fixed) — fits track terms so the mix's first payment lands in a desired range.
+  - `resolver.ts` — `resolveDials` / `resolveDial`: split loan by share → optimize terms → resolve rates → `computeDial` (mix + risk).
+  - `loadConfig.ts` — the ONLY DB file (Prisma → DTOs), keeping the resolver pure.
+  - `index.ts` barrel + `dials.test.ts`.
+- **6 tests** (allowed terms by `yearStep`, rate-band key mapping, end-to-end clock1: shares→amounts, rate resolution, optimizer in-range, risk). **40/40 total pass**, tsc clean.
+- Config-driven & pure: reads rate bands / global params / dial templates from config; no hardcoding; DB isolated in `loadConfig`.
+
+**Next (NOT in this branch):** 3C dials **UI** (mockups 2 & 13) consumes `resolveDials`. Branch `feat/phase-3c-dial-resolver`, off latest `main` (merges cleanly).
 
 ---
 

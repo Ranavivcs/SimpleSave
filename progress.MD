@@ -39,6 +39,28 @@ Hebrew-first RTL, config-driven, modular.
 
 ---
 
+## Session 5 — 2026-06-25 — Scaffold + home page (build green)
+
+**Done**
+- Scaffolded Next.js app into `simplesave/` (generated in temp `ss-scaffold`, merged in to preserve git/README).
+- Versions (NEWER than training data — see AGENTS.md): **Next 16.2.9 · React 19.2 · Tailwind 4 · next-intl 4 · Prisma 7**.
+- Installed deps: next-intl, @prisma/client, prisma (dev), vitest (dev). `npm install` clean.
+- **i18n (next-intl, Hebrew-first, no URL routing yet):**
+  - `src/i18n/config.ts` (locales/dir — single source for adding ru/fr/en later)
+  - `src/i18n/request.ts` (getRequestConfig → he + messages)
+  - `next.config.ts` wraps `createNextIntlPlugin`
+  - `messages/he.json` (common/home/services strings)
+- **Layout/theme:** root `layout.tsx` = `lang=he dir=rtl`, Heebo font, NextIntlClientProvider; `globals.css` brand theme (blue/white/black tokens via Tailwind `@theme`). Logo → `public/logo.png`.
+- **Home page** (mockup 3): `src/app/page.tsx` + `src/components/layout/SiteHeader.tsx` + `src/modules/home/ServiceCard.tsx`. Hero + 3 service cards → link to `/questionnaire/{new-mortgage|refinance|insurance}`.
+- `npm run build` ✅ compiles, typechecks, prerenders.
+- package.json renamed to `simplesave`; added test/prisma scripts.
+
+**Not yet committed** — awaiting approval (per [[ask-before-commit-push]]).
+
+**Next (Module 1 continued):** calc-engine port (`src/lib/calc/`, pure + Vitest tests vs simulator numbers) → typed contracts (`src/lib/contracts/`) → questionnaire wizard → dials screen. No DB/auth yet (guest flow).
+
+---
+
 ## Session 4 — 2026-06-25 — Key decisions resolved + consent forms received
 
 **Client rulings (now binding):**

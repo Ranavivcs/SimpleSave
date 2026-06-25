@@ -93,8 +93,30 @@ Hebrew-first RTL, i18n-ready, accessibility-first. Hosting TBD.
    Insurance module (module 6).
 6. ✅ **Business-rule defaults** (admin-editable, not hardcoded): max repayment 40% · loan-term age cap 85 ·
    credit-history lookback 7 yr · expected annual index 3% · non-owner borrower counts 50% of net income.
-7. ⏳ **Repo/folder structure** — single Next.js app; decide app-router layout at scaffold time.
-8. ⏳ **i18n library** + RTL approach — decide at scaffold time (Hebrew-first, structure for ru/fr/en).
+7. ✅ **Repo/folder structure** — single Next.js app (App Router, `src/`). See §9.
+8. ✅ **i18n** — next-intl, Hebrew-first, **no URL routing yet** (single locale). Add ru/fr/en by extending
+   `src/i18n/config.ts` + a `messages/<locale>.json` + routing. Tailwind v4 + `dir="rtl"` on `<html>`.
+
+---
+
+## 9. Actual project structure (as built)
+
+```
+simplesave/
+├─ src/
+│  ├─ app/                 # App Router (layout.tsx = he/rtl, page.tsx = home)
+│  ├─ components/layout/   # shared UI (SiteHeader)
+│  ├─ modules/<feature>/   # one self-contained folder per module (home, …)
+│  ├─ lib/calc/            # ported calc engine — pure, testable (TBD)
+│  ├─ lib/contracts/       # typed objects between layers (TBD)
+│  └─ i18n/                # config.ts, request.ts
+├─ messages/he.json        # all UI strings (externalized)
+├─ public/logo.png
+├─ assets/                 # logo source, forms/, reference/ (client material)
+└─ prisma/                 # schema (added at Module 2 — persistence)
+```
+
+Stack: Next 16 · React 19 · Tailwind 4 · next-intl 4 · Prisma 7 · Vitest.
 
 ---
 

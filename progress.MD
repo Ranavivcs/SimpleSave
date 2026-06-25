@@ -39,6 +39,25 @@ Hebrew-first RTL, config-driven, modular.
 
 ---
 
+## Session 7 — 2026-06-25 — Phase 1A: calc engine ported ✅
+
+**Done — the pure calculation engine, parity-tested against the simulator.**
+- `src/lib/contracts/mortgage.ts` — typed contracts (MortgageTrack, MixParams, RouteResult, MixResult, RiskRule, RiskResult). Domain values kept in Hebrew to match simulator + bank parser.
+- `src/lib/calc/`:
+  - `finance.ts` — `num`, `PMT`
+  - `route.ts` — `calcRoute` (Shpitzer & Equal-Principal, CPI/FX linkage, balloon/grace, daily interest) — **annual-index mode** (actual-monthly-index is a later post-mortgage feature)
+  - `mix.ts` — `calcMix` (aggregates: firstPay, total, interest, indexation, avgRate/Years, maxN)
+  - `risk.ts` — `defaultRiskRules` + `mixRisk` (share-weighted 1–5, labels)
+  - `index.ts` — barrel + `computeDial(tracks, params, rules)` convenience
+- Engine is **pure** (no UI/DB/I-O), consumes RESOLVED rates (rate-table lookup deferred to Phase 2 config).
+- **Verification:** built a throwaway Node "oracle" from the simulator's exact functions → captured ground-truth numbers → `calc.test.ts` asserts the port matches (+ independent closed-form Shpitzer check). **7/7 tests pass**; `tsc --noEmit` clean. Oracle deleted (numbers baked into tests with provenance).
+
+**Not committed** — awaiting approval (per [[ask-before-commit-push]]).
+
+**Next:** Phase 2A — Supabase + Prisma (🔒 needs the client's Supabase project: URL + keys, EU region). Or, if preferred, do Phase 3A (questionnaire engine) which doesn't need the DB.
+
+---
+
 ## Session 6 — 2026-06-25 — Roadmap + re-sequenced build order + Supabase
 
 **Decisions (client):**

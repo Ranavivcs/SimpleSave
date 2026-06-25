@@ -20,11 +20,11 @@ GitHub connected · Next.js scaffold + i18n (he/RTL) + brand theme + **home page
 
 ---
 
-## Phase 1 — Calculation engine 🔜 (start here; order-independent core)
+## Phase 1 — Calculation engine ✅ (done)
 
 | Session | Goal | Needs | Deliverables | Done when |
 |---|---|---|---|---|
-| **1A — Calc engine port** 🔜 | Port the simulator math into a pure, testable module | simulator-engine.html (have) | `src/lib/calc/`: Shpitzer & Equal-Principal, mix calc, index/linkage, risk score, refi compare; typed `src/lib/contracts/`; **Vitest** parity tests vs simulator | tests pass & numbers match the simulator |
+| **1A — Calc engine port** ✅ | Port the simulator math into a pure, testable module | simulator-engine.html (have) | `src/lib/calc/` (finance/route/mix/risk + `computeDial`) + typed `src/lib/contracts/`; **Vitest** parity tests vs simulator | ✅ 7/7 tests pass, numbers match simulator, tsc clean |
 
 ---
 

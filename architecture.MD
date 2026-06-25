@@ -10,8 +10,10 @@
 
 **Phase:** Ready to build — reference data gathered, key decisions resolved (see §6). Awaiting go-ahead to scaffold.
 **Code written so far:** none. Only tracking files (`rules.MD`, `architecture.MD`, `progress.MD`).
-**Tech stack (DECIDED 2026-06-25):** Next.js (React + TypeScript) full-stack · PostgreSQL · Prisma ORM.
-Hebrew-first RTL, i18n-ready, accessibility-first. Hosting TBD.
+**Tech stack (DECIDED 2026-06-25):** Next.js (React + TypeScript) · **Supabase** (Postgres + Auth/OTP + Storage,
+EU region for Std 13) · Prisma (app data, via the Supabase pooler) · Tailwind 4 · next-intl.
+Hebrew-first RTL, i18n-ready, accessibility-first.
+**Build order:** calc engine → manager/config backbone → customer flow → customer accounts (see ROADMAP.md).
 
 ---
 
@@ -82,9 +84,11 @@ Hebrew-first RTL, i18n-ready, accessibility-first. Hosting TBD.
 
 ## 6. Decisions (resolved unless marked)
 
-1. ✅ **Tech stack** — Next.js (React+TS) + PostgreSQL + Prisma. Hosting TBD.
+1. ✅ **Tech stack** — Next.js (React+TS) + **Supabase** (Postgres + Auth/OTP + Storage) + Prisma. EU region (Std 13).
 2. ✅ **Build mode** — BUILD FRESH (no accessible prototype; Base44 version inaccessible). Port the simulator's
    calc logic into a clean module; spec = requirements; mockups = design.
+   **Build order (client-chosen):** calc engine → manager/config backbone → customer flow → customer accounts.
+   Supabase Auth is stood up in the backbone phase to protect the admin area.
 3. ✅ **Calculation formulas** — taken from the simulator: `PMT`/`calcRoute` (Shpitzer + Equal-Principal, linkage,
    balloon/grace); risk score = share-weighted `riskRules` (see simulator-engine.html).
 4. ✅ **Default dial/mix definitions** — the 5 שעונים from `CLOCK_TEMPLATES` (clock1–5) in the simulator.

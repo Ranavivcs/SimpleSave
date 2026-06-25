@@ -6,7 +6,8 @@ Smart Israeli mortgage comparison & management platform. Three services: **New M
 
 1. **[rules.MD](rules.MD)** — working contract & guidelines. Read before touching anything.
 2. **[architecture.MD](architecture.MD)** — layers, modules, data model, decisions.
-3. **[progress.MD](progress.MD)** — running session log: what's done, what's next.
+3. **[ROADMAP.md](ROADMAP.md)** — session-by-session build plan: goal / needs / done-when per session.
+4. **[progress.MD](progress.MD)** — running session log: what's done, what's next.
 
 ## Stack
 

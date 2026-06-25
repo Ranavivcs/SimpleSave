@@ -39,6 +39,27 @@ Hebrew-first RTL, config-driven, modular.
 
 ---
 
+## Session 6 — 2026-06-25 — Roadmap + re-sequenced build order + Supabase
+
+**Decisions (client):**
+- **Build order changed** to **engine → manager/config backbone → customer flow → customer accounts**
+  (was guest-flow-first). Rationale: config-driven system — customer dials consume admin-defined config, so build
+  that backbone first, no throwaway seeding. Calc engine stays first (pure, order-independent).
+- **Database = Supabase**, used for **Postgres + Auth(OTP) + Storage** (+ RLS for roles). EU region for Std 13.
+  Prisma talks to Supabase Postgres via the pooler; Supabase Auth handles OTP; Supabase Storage handles documents.
+  Supabase Auth is set up in the backbone phase so the admin area is protected (full customer registration/personal
+  area stays a later phase).
+
+**Done:** wrote `ROADMAP.md` (session-by-session: goal / needs / done-when), re-sequenced for the above; linked in
+README; synced architecture.MD (stack + order).
+
+**Not committed** — awaiting approval (per [[ask-before-commit-push]]).
+
+**Next:** commit roadmap+doc updates, then **Phase 1A — calc engine port** (pure TS + Vitest parity tests vs the
+simulator). Phase 2A (Supabase) is blocked until the client creates the Supabase project (URL + keys, EU region).
+
+---
+
 ## Session 5 — 2026-06-25 — Scaffold + home page (build green)
 
 **Done**

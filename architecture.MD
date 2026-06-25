@@ -8,7 +8,8 @@
 
 ## 1. Status
 
-**Phase:** Ready to build — reference data gathered, key decisions resolved (see §6). Awaiting go-ahead to scaffold.
+**Phase:** Building. Done: Phase 0 (scaffold/home), Phase 1 (calc engine), Phase 2A (Supabase+Prisma), Phase 2B
+(config seeded). Next: Phase 2C (auth/roles) → 2D (admin config UI). See ROADMAP.md / progress.MD handoff.
 **Code written so far:** none. Only tracking files (`rules.MD`, `architecture.MD`, `progress.MD`).
 **Tech stack (DECIDED 2026-06-25):** Next.js (React + TypeScript) · **Supabase** (Postgres + Auth/OTP + Storage,
 EU region for Std 13) · Prisma (app data, via the Supabase pooler) · Tailwind 4 · next-intl.
@@ -110,17 +111,27 @@ simplesave/
 ├─ src/
 │  ├─ app/                 # App Router (layout.tsx = he/rtl, page.tsx = home)
 │  ├─ components/layout/   # shared UI (SiteHeader)
-│  ├─ modules/<feature>/   # one self-contained folder per module (home, …)
-│  ├─ lib/calc/            # ported calc engine — pure, testable (TBD)
-│  ├─ lib/contracts/       # typed objects between layers (TBD)
+│  ├─ modules/<feature>/   # one self-contained folder per module (home; admin next)
+│  ├─ lib/
+│  │  ├─ calc/             # ✅ ported calc engine — pure, testable (finance/route/mix/risk)
+│  │  ├─ contracts/        # ✅ typed objects between layers (mortgage.ts)
+│  │  └─ db.ts             # ✅ Prisma singleton (pg driver adapter, pooled)
 │  └─ i18n/                # config.ts, request.ts
 ├─ messages/he.json        # all UI strings (externalized)
+├─ prisma/
+│  ├─ schema.prisma        # ✅ config-backbone models
+│  └─ seed.mjs             # ✅ seeds config from simulator defaults
+├─ prisma.config.ts        # ✅ Prisma 7 connection config (DIRECT_URL)
 ├─ public/logo.png
 ├─ assets/                 # logo source, forms/, reference/ (client material)
-└─ prisma/                 # schema (added at Module 2 — persistence)
+└─ .env.local              # secrets (gitignored) — Supabase/Prisma URLs + keys
 ```
 
-Stack: Next 16 · React 19 · Tailwind 4 · next-intl 4 · Prisma 7 · Vitest.
+Stack: Next 16 · React 19 · Tailwind 4 · next-intl 4 · Prisma 7 (+ @prisma/adapter-pg) · Supabase (EU) · Vitest.
+
+**DB connection (Prisma 7):** URLs in `prisma.config.ts` (CLI/migrations → `DIRECT_URL`, session pooler 5432);
+runtime via `@prisma/adapter-pg` with the pooled `DATABASE_URL` (6543). Schema synced with `db push` (not
+`migrate dev`) for now. Config-backbone tables seeded; user/borrower/request entities come in their phases.
 
 ---
 

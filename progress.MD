@@ -6,36 +6,64 @@
 
 ---
 
-## Where the project is headed (the big picture)
+## 📍 NEXT SESSION — START HERE (handoff, 2026-06-25)
 
-SimpleSave: an Israeli mortgage comparison & management platform with 3 services
-(New Mortgage, Refinancing/מחזור, Insurance), 3 roles (Customer, Advisor, Admin),
-Hebrew-first RTL, config-driven, modular.
+**Read order before ANY work:** `rules.MD` → `architecture.MD` → `ROADMAP.md` → this file. Then act.
+**Hard rules:** ASK before any `git commit`/`push` ([[ask-before-commit-push]]); ASK before starting a new module; keep it modular & config-driven; no hardcoded values/strings.
 
-**Agreed build order** (one module at a time, user approval between each):
-1. Questionnaire + Dials (guest flow)  ← *first target*
-2. Registration + Personal Area shell
-3. Document upload
-4. Admin panel (dials + rates config)
-5. Advisor panel
-6. Insurance module
-7. Post-mortgage tracking
+**Project in one line:** SimpleSave — Israeli mortgage comparison/management platform (new · refinance · insurance), 3 roles (customer/advisor/admin), Hebrew-first RTL, config-driven.
+**Build order:** calc engine → manager/config backbone → customer flow → customer accounts.
+
+**Done (Phases 0, 1, 2A, 2B):**
+- Next.js 16 app (App Router, TS, Tailwind 4, next-intl he/RTL) + home page. `npm run build` green.
+- Pure calc engine `src/lib/calc` (+ `src/lib/contracts`) — 7/7 parity tests vs the simulator.
+- Supabase (EU/Frankfurt) via Prisma 7 (pg driver adapter) — `src/lib/db.ts`.
+- Config schema pushed + **seeded**: 5 dial templates, 18 rate bands, global params, 7 risk rules, 15 doc requirements.
+
+**▶ NEXT — Phase 2C, then 2D:**
+- **2C:** Supabase Auth (email OTP) + roles (customer/advisor/admin) + RLS + admin route guard; create an admin user.
+- **2D:** Admin config UI — CRUD over the seeded config (dial editor = mockup 4, rate tables = mockup 6, global params). Put it under `src/modules/admin`.
+- Then **Phase 3** (customer flow) needs a **template→engine resolver**: map DB enums→Hebrew domain values, resolve anchor/margin from `RateBand`, and pick track years from `yearStep` via the optimizer (port the simulator's `calculateMixToRange`).
+
+**How to run (Windows; Bash + PowerShell tools available):**
+- `.env.local` is REQUIRED & gitignored. If missing, recreate from `.env.example` with the EU Supabase values (project ref `iknokcilvdzbmevxhisy`, region `eu-central-1`). `DATABASE_URL`=pooled 6543, `DIRECT_URL`=session pooler 5432, alphanumeric DB password.
+- `npm install` (auto `prisma generate`) → `npm run db:push` → `npm run db:seed` → `npm run dev` (localhost:3000) → `npm test` → `npx tsc --noEmit`.
+
+**Prisma 7 gotchas (newer than training — see AGENTS.md):** URLs live in `prisma.config.ts` (DIRECT_URL), not schema · runtime needs `@prisma/adapter-pg` (no `datasourceUrl`) · we added `postinstall: prisma generate` · using `db push` (not `migrate dev`, which needs a shadow DB awkward on the pooler).
+
+**Open inputs/blockers:** sample bank reports → Phase 3D · pricing + payment gateway → Phase 4 · insurance tariff tables + gov.il ratings → Phase 7.
+**Security TODO:** rotate the Supabase `service_role` key before real data (it passed through chat; tables empty now).
 
 ---
 
-## Overall checklist
+## Phase status (see ROADMAP.md for detail)
 
-- [x] Tracking files created (rules / architecture / progress)
-- [x] Tech stack decided — Next.js (React+TS) + PostgreSQL + Prisma
-- [ ] Reference data gathered (rates, doc lists, dial defs, formulas, sample bank reports)
-- [ ] Project scaffold
-- [ ] Module 1: Questionnaire + Dials (guest flow)
-- [ ] Module 2: Registration + Personal Area shell
-- [ ] Module 3: Document upload
-- [ ] Module 4: Admin panel
-- [ ] Module 5: Advisor panel
-- [ ] Module 6: Insurance module
-- [ ] Module 7: Post-mortgage tracking
+- [x] Phase 0 — Setup & foundation (scaffold, i18n/RTL, home page)
+- [x] Phase 1 — Calculation engine (pure, parity-tested)
+- [x] Phase 2A — Supabase + Prisma wired
+- [x] Phase 2B — Config seeded
+- [ ] Phase 2C — Auth (OTP) + roles + admin guard  ← **next**
+- [ ] Phase 2D — Admin config UI
+- [ ] Phase 3 — Customer guest flow (questionnaire → dials)
+- [ ] Phase 4 — Customer accounts & personal area
+- [ ] Phase 5 — Document upload
+- [ ] Phase 6 — Advisor panel
+- [ ] Phase 7 — Insurance module
+- [ ] Phase 8 — Post-mortgage tracking
+
+---
+
+## Session 9 — 2026-06-25 — Phase 2B: config seeded ✅
+
+**Done — config backbone populated from simulator defaults & verified.**
+- `prisma/seed.mjs` (run via `npm run db:seed`): idempotent (clears + re-inserts config tables).
+- Seeded: **1** GlobalParameters · **18** RateBand (9 housing + 9 all-purpose) · **5** DialTemplate · **25** DialTrack · **7** RiskRule · **15** DocumentRequirement.
+- Values verified by read-back: clock1 = 17/17/30/15/21 (matches CLOCK_TEMPLATES); params index 0.03 / prime 0.0456 / maxRepay 0.40 / age 85 / lookback 7.
+- Hebrew↔enum mapping in seed (ללא→NONE, מדד→CPI, fixed→FIXED, …). DialTrack stores yearStep (the optimizer picks actual years later, in Phase 3).
+
+**Not committed** — awaiting approval (per [[ask-before-commit-push]]).
+
+**Next:** Phase 2C — Supabase Auth (OTP) + roles + admin route guard, then 2D — admin config UI (CRUD over this seeded data). Then Phase 3 customer flow consumes it.
 
 ---
 

@@ -2,7 +2,7 @@
 
 > Living document. Describes every layer of the project so any session can understand the build.
 > **Update this file whenever module boundaries, interfaces, or the stack change.**
-> Last updated: 2026-06-25 (session 12 — Phase 2C auth + roles + admin guard).
+> Last updated: 2026-06-25 (session 13 — Phase 3B questionnaire flow / POC).
 
 ---
 
@@ -10,7 +10,8 @@
 
 **Phase:** Building. Done: Phase 0 (scaffold/home), Phase 1 (calc engine), Phase 2A (Supabase+Prisma), Phase 2B
 (config seeded), **Phase 2C** (auth: email-OTP + roles + admin guard), **Phase 3A** (questionnaire engine) +
-**Phase 3B core** (eligibility engine). Next: Phase 2D (admin config UI). See ROADMAP.md / progress.MD handoff.
+**Phase 3B core** (eligibility engine), **Phase 3B** (new-mortgage questionnaire UI + Home→questionnaire flow).
+Next: Phase 2D (admin config UI) + Phase 3C dials screen (resolver `src/lib/dials` done). See ROADMAP.md / progress.MD handoff.
 **Code so far:** calc / questionnaire / eligibility engines (`src/lib/{calc,questionnaire,eligibility,contracts}`),
 config backbone (Prisma schema + seed), auth (Supabase OTP + `Profile`/roles + `/admin` guard), home page + i18n.
 34/34 tests green, tsc clean.
@@ -112,10 +113,10 @@ Hebrew-first RTL, i18n-ready, accessibility-first.
 ```
 simplesave/
 ├─ src/
-│  ├─ app/                 # App Router (layout.tsx = he/rtl, page.tsx = home; login/, admin/)
+│  ├─ app/                 # App Router (home; login/; admin/; questionnaire/[variant]/; demo/)
 │  ├─ proxy.ts             # ✅ Next-16 "proxy" (was middleware): session refresh + /admin gate
 │  ├─ components/layout/   # shared UI (SiteHeader)
-│  ├─ modules/             # one self-contained folder per feature (home; auth; admin next)
+│  ├─ modules/             # one self-contained folder per feature (home; auth; questionnaire; admin next)
 │  ├─ lib/
 │  │  ├─ calc/             # ✅ ported calc engine — pure, testable (finance/route/mix/risk)
 │  │  ├─ questionnaire/    # ✅ config-driven wizard engine — pure, testable (conditions/validation/engine)

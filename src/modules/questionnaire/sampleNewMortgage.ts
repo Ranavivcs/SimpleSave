@@ -1,14 +1,14 @@
 /**
- * DEMO questionnaire definition for the wizard demo. Not production content —
- * a small new-mortgage sample that exercises the 3A engine (choice / number /
- * date / yes-no fields, a conditional field, per-borrower fields) and maps
- * cleanly onto the 3B eligibility engine's input.
+ * DEMO questionnaire definition for the `/demo/questionnaire` route. Not
+ * production content — a small new-mortgage sample that exercises the 3A engine
+ * (choice / number / date / yes-no, a conditional field, per-borrower fields).
  *
- * Real per-variant question content (3B) is config and lands later.
+ * Production new-mortgage content lives in ./content/newMortgage.ts.
+ * The answer→eligibility mapper is shared (./mappers).
  */
+import type { Questionnaire } from "@/lib/questionnaire";
 
-import type { Questionnaire, QuestionnaireAnswer } from "@/lib/questionnaire";
-import type { EligibilityInput, PurchaseType } from "@/lib/eligibility";
+export { answerToEligibilityInput } from "./mappers";
 
 export const sampleNewMortgage: Questionnaire = {
   id: "demo-new-mortgage",
@@ -45,7 +45,6 @@ export const sampleNewMortgage: Questionnaire = {
           required: true,
           min: 0,
           step: 500,
-          // conditional: only shown when "has other income" is yes
           visibleWhen: { field: "hasOtherIncome", op: "truthy", scope: "global" },
         },
         { id: "fixedMonthlyExpenses", type: "number", labelKey: "demo.fields.fixedMonthlyExpenses", helpKey: "demo.help.fixedMonthlyExpenses", min: 0, step: 500 },
@@ -62,21 +61,3 @@ export const sampleNewMortgage: Questionnaire = {
     },
   ],
 };
-
-/** Map a completed answer onto the eligibility engine's typed input. */
-export function answerToEligibilityInput(a: QuestionnaireAnswer): EligibilityInput {
-  const num = (v: unknown) => (typeof v === "number" ? v : 0);
-  return {
-    purchaseType: (a.values.purchaseType as PurchaseType) ?? "single",
-    propertyValue: num(a.values.propertyValue),
-    requestedLoan: num(a.values.requestedLoan),
-    equity: num(a.values.equity),
-    extraMonthlyIncome: num(a.values.extraMonthlyIncome),
-    fixedMonthlyExpenses: num(a.values.fixedMonthlyExpenses),
-    borrowers: a.borrowers.map((b) => ({
-      birthDate: (b.birthDate as string) ?? "",
-      netMonthlyIncome: num(b.netMonthlyIncome),
-      isMortgagor: b.isMortgagor !== false, // default: mortgagor unless explicitly "no"
-    })),
-  };
-}

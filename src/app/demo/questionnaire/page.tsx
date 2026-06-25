@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { QuestionnaireWizard } from "@/modules/questionnaire/QuestionnaireWizard";
+import { sampleNewMortgage } from "@/modules/questionnaire/sampleNewMortgage";
 
 /**
  * Demo route — live walkthrough of the questionnaire engine (3A) feeding the
@@ -15,7 +16,7 @@ export default function DemoQuestionnairePage() {
       <h1 className="text-2xl font-extrabold text-brand-900">{t("pageTitle")}</h1>
       <p className="mt-2 text-sm text-muted">{t("pageSubtitle")}</p>
       <div className="mt-8">
-        <QuestionnaireWizard />
+        <QuestionnaireWizard questionnaire={sampleNewMortgage} />
       </div>
     </main>
   );

@@ -119,6 +119,78 @@
     "loggedInAs": "מחובר כ-{email}",
     "logout": "יציאה"
   },
+  "wizard": {
+    "step": "שלב {current} מתוך {total}",
+    "borrowerCount": "מספר לווים",
+    "borrower": "לווה {n}",
+    "submit": "חישוב התאמה",
+    "choose": "בחר/י",
+    "yes": "כן",
+    "no": "לא",
+    "editAgain": "עריכה מחדש",
+    "toDials": "המשך לתמהילים המומלצים",
+    "toDialsSoon": "מסך התמהילים (5 השעונים) בבנייה — יתחבר כאן בקרוב",
+    "result": {
+      "title": "סיכום ראשוני",
+      "eligible": "אתם עומדים בקריטריונים הראשוניים",
+      "notEligible": "יש נקודות שדורשות בדיקה",
+      "maxLoan": "סכום הלוואה מרבי",
+      "requiredEquity": "הון עצמי נדרש",
+      "maxPayment": "החזר חודשי מרבי",
+      "income": "הכנסה מזכה",
+      "maxTerm": "תקופה מרבית (שנים)",
+      "violations": "נקודות לבדיקה"
+    }
+  },
+  "questionnaire": {
+    "comingSoon": "בקרוב",
+    "comingSoonDesc": "המסלול הזה ייפתח בקרוב. בינתיים אפשר להתחיל במסלול משכנתא חדשה.",
+    "newMortgage": {
+      "title": "משכנתא חדשה",
+      "sections": {
+        "property": "הנכס והעסקה",
+        "finance": "הכנסות והוצאות",
+        "borrowers": "פרטי הלווים"
+      },
+      "fields": {
+        "purchaseType": "סוג העסקה",
+        "propertyValue": "שווי הנכס",
+        "requestedLoan": "סכום ההלוואה המבוקש",
+        "equity": "הון עצמי",
+        "hasOtherIncome": "יש הכנסות נוספות?",
+        "extraMonthlyIncome": "הכנסה חודשית נוספת",
+        "fixedMonthlyExpenses": "הוצאות קבועות חודשיות",
+        "birthDate": "תאריך לידה",
+        "employmentType": "סטטוס תעסוקה",
+        "netMonthlyIncome": "הכנסה חודשית נטו",
+        "isMortgagor": "ממשכן/ת את הנכס?"
+      },
+      "help": {
+        "purchaseType": "דירה יחידה, נוספת, מחיר למשתכן ועוד — משפיע על שיעור המימון המרבי",
+        "propertyValue": "שווי הנכס הנרכש, בשקלים",
+        "requestedLoan": "סכום ההלוואה שאתם מבקשים מהבנק",
+        "equity": "ההון העצמי שיש לכם להשקעה בעסקה",
+        "hasOtherIncome": "שכר דירה, קצבאות או הכנסות קבועות נוספות",
+        "extraMonthlyIncome": "סכום ההכנסה הנוספת החודשית, בשקלים",
+        "fixedMonthlyExpenses": "התחייבויות והלוואות קיימות בתשלום חודשי קבוע",
+        "birthDate": "משמש לחישוב תקופת ההלוואה המרבית (עד גיל 85 של הלווה המבוגר)",
+        "employmentType": "שכיר או עצמאי — משפיע על המסמכים הנדרשים בהמשך",
+        "netMonthlyIncome": "ההכנסה החודשית נטו, לאחר מס",
+        "isMortgagor": "לווה שאינו ממשכן את הנכס — רק 50% מהכנסתו נספרת ביכולת ההחזר"
+      },
+      "purchaseType": {
+        "single": "דירה יחידה",
+        "additional": "דירה נוספת",
+        "allPurpose": "כל מטרה / נכס קיים",
+        "housingImprovement": "שיפור דיור",
+        "mechirLamishtaken": "מחיר למשתכן"
+      },
+      "employment": {
+        "employed": "שכיר/ה",
+        "selfEmployed": "עצמאי/ת"
+      }
+    }
+  },
   "services": {
     "newMortgage": {
       "title": "משכנתא חדשה",

@@ -69,6 +69,27 @@ or out of order, *will* force a manual conflict resolution — don't.
 
 ---
 
+## Session 10 — 2026-06-25 — Phase 3B (core): eligibility & repayment-capacity engine ✅
+
+**Done — pure eligibility engine. Parallel track, branched off main `c88b98a`. Standalone like the calc engine — no DB, no questionnaire dependency.**
+- `src/lib/contracts/eligibility.ts` — typed contracts: `PurchaseType` (single / additional / allPurpose / housingImprovement / mechirLamishtaken), `EligibilityBorrower`, `EligibilityInput`, `EligibilityLimits` (every regulatory limit, resolved from config), `EligibilityResult` (+ `EligibilityViolation`).
+- `src/lib/eligibility/`:
+  - `income.ts` — `qualifyingIncome` (non-mortgagor income ×0.5, +extra −fixed, floored 0), `maxMonthlyPayment` (×ratio), `withinCapacity`.
+  - `property.ts` — `ltvCapFor`, `maxLoanByLtv`, `requiredEquity` (LTV complement; 25% floor unless exempt; ₪ floor), `maxLoanAmount`.
+  - `age.ts` — `ageInYears`, `oldestAge`, `maxLoanTermYears` (capped by age 85 of the oldest borrower).
+  - `index.ts` — `assessEligibility` + `DEFAULT_ELIGIBILITY_LIMITS` (mirrors the Phase-2B seeded `GlobalParameters`) + barrel.
+- `messages/he.json` — added an `eligibility.*` namespace (engine emits keys only; Hebrew text here = single source of truth).
+- **Config-driven & pure:** every limit (LTV caps, 40% ratio, age 85, 25%/₪100k equity, non-mortgagor 0.5) is a parameter resolved from config — defaults match the seed. No hardcoding, no I/O.
+- **Tests:** `src/lib/eligibility/eligibility.test.ts` — 14 tests (income weighting, LTV/equity per purchase type, Mechir ₪100k floor, age/term cap, every violation path, custom-limit override). **21/21 total pass** (calc + eligibility); my files `tsc`-clean.
+
+**Scope:** the eligibility *core* of Phase 3B. The `QuestionnaireAnswer → EligibilityInput` adapter + the new-mortgage questionnaire definition come next (they build on the Phase-3A contracts — separate branch/PR). Did **not** build 3C (dials — needs Phase-2 rate tables).
+
+**Spec point to confirm:** Mechir-LaMishtaken "min ₪100k" is implemented as a minimum *equity* amount (≈10%); confirm it isn't a min *loan* amount.
+
+**Not committed** — on branch `feat/phase-3b-eligibility-engine`, awaiting approval (per [[ask-before-commit-push]]).
+
+---
+
 ## Session 9 — 2026-06-25 — Phase 2B: config seeded ✅
 
 **Done — config backbone populated from simulator defaults & verified.**

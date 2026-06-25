@@ -33,6 +33,12 @@
     "minRows": "יש להוסיף לפחות {min} שורות",
     "maxRows": "ניתן להוסיף עד {max} שורות"
   },
+  "eligibility": {
+    "borrowerCountOutOfRange": "מספר הלווים חייב להיות בין {min} ל-{max}",
+    "loanExceedsValue": "סכום ההלוואה אינו יכול לעלות על שווי הנכס",
+    "ltvExceeded": "סכום ההלוואה חורג משיעור המימון המרבי ({ltvPct}%)",
+    "insufficientEquity": "ההון העצמי נמוך מהנדרש (לפחות {requiredEquity} ₪)"
+  },
   "services": {
     "newMortgage": {
       "title": "משכנתא חדשה",

@@ -12,6 +12,7 @@
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "node prisma/seed.mjs",
+    "db:seed:advisor": "node prisma/seed-advisor.mjs",
     "create-admin": "node prisma/create-admin.mjs",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev"

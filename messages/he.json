@@ -95,7 +95,16 @@
       "maxTerm": "תקופה מרבית (שנים)",
       "income": "הכנסה קובעת (לחודש)",
       "violations": "חריגות"
-    }
+    },
+    "save": "שמירה",
+    "saved": {
+      "title": "הנתונים נשמרו",
+      "desc": "אפשר להמשיך למילוי שאר הלשוניות."
+    },
+    "addRow": "הוספת שורה",
+    "removeRow": "הסרה",
+    "toDials": "המשך לתמהילים המומלצים",
+    "toDialsSoon": "מסך התמהילים (5 השעונים) בבנייה — יתחבר כאן בקרוב"
   },
   "newMortgage": {
     "title": "שאלון משכנתא חדשה",
@@ -274,6 +283,156 @@
         "employed": "שכיר/ה",
         "selfEmployed": "עצמאי/ת"
       }
+    },
+    "personalData": {
+      "title": "נתונים אישיים",
+      "sections": {
+        "identity": "פרטים אישיים",
+        "contact": "פרטי התקשרות",
+        "employment": "תעסוקה",
+        "declarations": "הצהרות",
+        "finances": "נתונים פיננסיים"
+      },
+      "f": {
+        "firstName": "שם פרטי",
+        "lastName": "שם משפחה",
+        "gender": "מין",
+        "maritalStatus": "מצב משפחתי",
+        "birthDate": "תאריך לידה",
+        "education": "השכלה",
+        "phone": "טלפון",
+        "email": "אימייל",
+        "addrCity": "עיר מגורים",
+        "addrStreet": "רחוב",
+        "addrNumber": "מספר בית",
+        "addrApt": "מספר דירה",
+        "employmentStatus": "סטטוס תעסוקה",
+        "profession": "מקצוע",
+        "workplace": "מקום עבודה",
+        "workSeniorityYears": "ותק במקום העבודה (שנים)",
+        "additionalCitizenship": "אזרחות נוספת?",
+        "publicFigure": "קרבה לאיש ציבור?",
+        "healthOk": "מצב בריאותי תקין?",
+        "creditIssues": "בעיות אשראי ב-7 השנים האחרונות?",
+        "netMonthlyIncome": "הכנסה חודשית נטו",
+        "loans": "הלוואות קיימות",
+        "extraIncome": "הכנסות נוספות",
+        "additionalProperties": "נכסים נוספים בבעלות?",
+        "propertiesTable": "פירוט נכסים"
+      },
+      "opt": {
+        "male": "זכר",
+        "female": "נקבה",
+        "single": "רווק/ה",
+        "married": "נשוי/אה",
+        "divorced": "גרוש/ה",
+        "widowed": "אלמן/ה",
+        "highschool": "תיכונית",
+        "postsecondary": "על-תיכונית",
+        "bachelor": "תואר ראשון",
+        "master": "תואר שני",
+        "employee": "שכיר/ה",
+        "selfEmployed": "עצמאי/ת",
+        "controllingOwner": "בעל/ת שליטה",
+        "house": "בית פרטי",
+        "duplex": "דו-משפחתי",
+        "apartment": "דירה בבניין"
+      },
+      "cols": {
+        "lender": "מקור ההלוואה",
+        "amount": "סכום",
+        "monthlyPayment": "החזר חודשי",
+        "endDate": "תאריך סיום",
+        "type": "סוג",
+        "city": "עיר",
+        "value": "שווי",
+        "mortgage": "יתרת משכנתא",
+        "kind": "סוג נכס"
+      },
+      "help": {
+        "creditIssues": "אם סימנת כן — נציג ייצור איתך קשר לבירור.",
+        "netMonthlyIncome": "שכיר: ממוצע 3 חודשים אחרונים. עצמאי: ממוצע 3 שנים אחרונות.",
+        "additionalProperties": "דירה נוספת יכולה להגדיל את ההון העצמי."
+      }
+    },
+    "mortgageData": {
+      "title": "נתוני משכנתא",
+      "sections": {
+        "status": "סטטוס רכישה",
+        "property": "פרטי הנכס",
+        "finance": "מימון והון עצמי",
+        "extra": "מידע נוסף"
+      },
+      "f": {
+        "purchaseStatus": "סטטוס רכישה",
+        "signDate": "תאריך חתימת החוזה",
+        "moneyNeededWhen": "מתי נדרש הכסף?",
+        "purchaseType": "סוג הרכישה",
+        "priorOwnership": "הייתה בבעלותכם דירה בעבר?",
+        "propertySource": "מקור הנכס",
+        "propertyRegistration": "רישום הנכס",
+        "addrCity": "עיר",
+        "addrStreet": "רחוב",
+        "addrNumber": "מספר בית",
+        "addrApt": "מספר דירה",
+        "rooms": "מספר חדרים",
+        "propertyDetails": "פרטי הנכס",
+        "propertyValue": "שווי הנכס / מחיר הרכישה",
+        "valueSource": "מקור הערכת השווי",
+        "equity": "הון עצמי",
+        "equitySource": "מקור ההון העצמי",
+        "desiredPaymentMin": "החזר חודשי רצוי — מינימום",
+        "desiredPaymentMax": "החזר חודשי רצוי — מקסימום",
+        "priorApplication": "הוגשה בקשה למשכנתא לפני סימפל סייב?",
+        "priorApplicationBanks": "באילו בנקים?",
+        "agreeTransferAccount": "תסכימו להעביר את חשבון הבנק בתנאים טובים יותר?"
+      },
+      "opt": {
+        "searching": "מחפש נכס",
+        "signed": "חתם על חוזה",
+        "aboutToSign": "לקראת חתימה",
+        "thisMonth": "החודש",
+        "twoMonths": "חודשיים",
+        "threePlus": "שלושה חודשים ומעלה",
+        "firstProperty": "נכס ראשון",
+        "housingImprovement": "שיפור דיור",
+        "additional": "נכס נוסף",
+        "contractor": "קבלן",
+        "secondHand": "יד 2",
+        "mechirLamishtaken": "מחיר למשתכן",
+        "selfBuild": "בנייה עצמית",
+        "tabu": "טאבו",
+        "minhal": "מנהל",
+        "chevraMeshakenet": "חברה משכנת",
+        "house": "בית פרטי",
+        "duplex": "דו-משפחתי",
+        "apartment": "דירה בבניין",
+        "self": "הערכה עצמית",
+        "appraiser": "שמאי",
+        "osh": "עו\"ש",
+        "savings": "חיסכון",
+        "loans": "הלוואות",
+        "family": "עזרת משפחה",
+        "keren": "קרן השתלמות",
+        "other": "אחר",
+        "yes": "כן",
+        "no": "לא",
+        "wantDetails": "אשמח לשמוע פרטים"
+      },
+      "cols": {
+        "kind": "סוג",
+        "floor": "קומה",
+        "buildingAge": "גיל המבנה",
+        "areaSqm": "שטח (מ\"ר)",
+        "source": "מקור",
+        "amount": "סכום"
+      },
+      "help": {
+        "purchaseType": "משפיע על אחוז המימון המרבי.",
+        "priorOwnership": "רלוונטי לבדיקת זכאות משרד השיכון.",
+        "propertySource": "משפיע על זכאות: עד שנה מחתימת חוזה ביד 2, עד 3 שנים מקבלן.",
+        "equitySource": "ניתן לפרט סכום לכל מקור."
+      }
     }
   },
   "services": {
@@ -298,5 +457,155 @@
       "bullet2": "ביטוח חיים",
       "bullet3": "חישוב פרמיות"
     }
+  },
+  "advisor": {
+    "greeting": "שלום, {name}",
+    "areaSubtitle": "האזור שלי · יועץ",
+    "logout": "יציאה",
+    "navLink": "אזור יועץ",
+    "tasksSoon": "ניהול המשימות והמעקבים ייבנה בשלב הבא.",
+    "gate": {
+      "title": "אזור היועץ",
+      "desc": "כניסה לאזור היועץ מותרת למשתמשים עם הרשאת יועץ.",
+      "login": "כניסה כיועץ",
+      "preview": "תצוגה מקדימה (פיתוח)"
+    },
+    "stats": {
+      "openTasks": "משימות פתוחות",
+      "myClients": "לקוחות שלי"
+    },
+    "views": {
+      "clients": "לקוחות שלי",
+      "tasks": "משימות"
+    },
+    "filters": {
+      "all": "כל הלקוחות",
+      "before": "לפני תהליך",
+      "in": "בתהליך",
+      "after": "אחרי תהליך"
+    },
+    "status": {
+      "before": "לפני תהליך",
+      "in": "בתהליך",
+      "after": "אחרי תהליך"
+    },
+    "stage": {
+      "personal": "פרטים אישיים",
+      "mortgage": "נתוני משכנתא",
+      "approval": "אישור עקרוני",
+      "collateral": "בטחונות",
+      "done": "הושלם"
+    },
+    "table": {
+      "name": "שם לקוח",
+      "advisor": "יועץ",
+      "status": "סטטוס",
+      "stage": "שלב",
+      "approvedBanks": "בנקים מאושרים",
+      "nextTreatment": "תאריך טיפול קרוב",
+      "messages": "הודעות",
+      "empty": "אין לקוחות בתצוגה זו."
+    },
+    "banks": {
+      "leumi": "בנק לאומי",
+      "hapoalim": "בנק הפועלים",
+      "mizrahi": "מזרחי-טפחות",
+      "discount": "בנק דיסקונט",
+      "beinleumi": "הבנק הבינלאומי",
+      "jerusalem": "בנק ירושלים",
+      "mercantile": "בנק מרכנתיל"
+    },
+    "requests": {
+      "new-mortgage": "משכנתא חדשה",
+      "refinance": "מחזור משכנתא",
+      "insurance": "ביטוח משכנתא"
+    },
+    "summary": {
+      "request": "פרטי הבקשה",
+      "requestType": "סוג בקשה",
+      "propertyValue": "שווי נכס",
+      "equity": "הון עצמי",
+      "loanAmount": "סכום הלוואה",
+      "process": "סטטוס תהליך",
+      "nextTreatment": "תאריך טיפול קרוב"
+    },
+    "detail": {
+      "tabs": {
+        "summary": "סיכום",
+        "documents": "מסמכים",
+        "messages": "הודעות"
+      }
+    },
+    "docNames": {
+      "id": "צילום תעודת זהות",
+      "payslips": "תלושי שכר",
+      "bankStatements": "דפי חשבון בנק",
+      "taxReturn": "דוח שנתי למס הכנסה"
+    },
+    "docStatus": {
+      "pending": "ממתין לבדיקה",
+      "approved": "אושר",
+      "rejected": "נדחה",
+      "requested": "נדרש מסמך"
+    },
+    "docActions": {
+      "approve": "אישור",
+      "reject": "סימון כלא תקין",
+      "request": "בקשת מסמך",
+      "rejectNote": "המסמך אינו תקין, נא להעלות מחדש."
+    },
+    "documents": {
+      "empty": "לא הועלו מסמכים."
+    },
+    "messages": {
+      "placeholder": "כתוב הודעה ללקוח...",
+      "send": "שליחה",
+      "you": "יועץ",
+      "client": "לקוח",
+      "empty": "אין הודעות עדיין."
+    }
+  },
+  "account": {
+    "title": "האזור האישי",
+    "myRequests": "הבקשות שלי",
+    "welcome": "התחברת בהצלחה — ברוך הבא לאזור האישי",
+    "guest": {
+      "title": "כניסה לאזור האישי",
+      "desc": "ניתן להתחבר כדי לשמור את הנתונים, או להמשיך כאורח לצפייה ומילוי.",
+      "login": "התחברות",
+      "guest": "המשך כאורח"
+    },
+    "openRequest": "כניסה לבקשה",
+    "requests": {
+      "new-mortgage": "משכנתא חדשה",
+      "refinance": "מחזור משכנתא",
+      "insurance": "ביטוח משכנתא"
+    },
+    "tabs": {
+      "personal": "נתונים אישיים",
+      "mortgage": "נתוני משכנתא",
+      "approval": "אישור עקרוני",
+      "documents": "מסמכים",
+      "collateral": "בטחונות",
+      "messages": "הודעות ליועץ"
+    },
+    "advisor": {
+      "title": "הודעות ליועץ",
+      "assigned": "היועץ/ת שמלווה את הבקשה: {name}",
+      "noAdvisor": "עדיין לא שויך יועץ לבקשה הזו.",
+      "empty": "אין הודעות עדיין.",
+      "placeholder": "כתבו הודעה ליועץ...",
+      "send": "שליחה",
+      "sending": "שולח...",
+      "you": "אני",
+      "sendError": "שליחת ההודעה נכשלה. נסו שוב."
+    },
+    "soonDesc": "החלק הזה ייבנה בקרוב.",
+    "locked": "יש להשלים את השלבים הקודמים כדי לפתוח לשונית זו."
+  },
+  "documents": {
+    "required": "חובה",
+    "uploadSoon": "העלאה — בקרוב",
+    "empty": "אין מסמכים נדרשים."
   }
 }

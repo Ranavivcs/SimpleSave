@@ -6,9 +6,16 @@
  * completion, shows the eligibility result. Reused by every variant
  * (new/refi/insurance) — domain content + cross-field rules are passed in.
  * All state is in-memory; no DB, no auth.
+ *
+ * Two completion modes:
+ *  - "eligibility" (default): runs the engine on submit and shows the result —
+ *    or a custom `renderResult` (e.g. the new-mortgage dials screen).
+ *  - "save": personal-area tabs — confirms the save and marks the tab done
+ *    (`saveKey`) so the next tab unlocks. No eligibility run.
  */
 
 import { useMemo, useState, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   createEmptyAnswer,
@@ -26,14 +33,19 @@ import {
   type EligibilityInput,
   type EligibilityResult,
 } from "@/lib/eligibility";
+import { markTabDone } from "@/lib/tab-progress";
 import { FieldInput, type TFn } from "./FieldInput";
 
 const nis = new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS", maximumFractionDigits: 0 });
 
 export type QuestionnaireWizardProps = {
   questionnaire: Questionnaire;
-  /** Map the completed answer onto the eligibility engine's input. */
-  mapToEligibility: (a: QuestionnaireAnswer) => EligibilityInput;
+  /** "eligibility" runs the engine on submit; "save" just confirms (personal area). */
+  mode?: "eligibility" | "save";
+  /** When set (save mode), completing the form marks this tab done (`type:tab`). */
+  saveKey?: string;
+  /** Map the completed answer onto the eligibility engine's input (eligibility mode). */
+  mapToEligibility?: (a: QuestionnaireAnswer) => EligibilityInput;
   /** Cross-field domain validation; errors are shown live and block "Next". */
   extraValidate?: (a: QuestionnaireAnswer) => ValidationError[];
   /** Optional live summary (e.g. derived loan amount) rendered under the fields. */
@@ -43,17 +55,22 @@ export type QuestionnaireWizardProps = {
 };
 
 export function QuestionnaireWizard({
-  questionnaire: Q,
+  questionnaire,
+  mode = "eligibility",
+  saveKey,
   mapToEligibility,
   extraValidate,
   renderSummary,
   renderResult,
 }: QuestionnaireWizardProps) {
+  const Q = questionnaire;
   const t = useTranslations() as TFn;
+  const router = useRouter();
   const [answer, setAnswer] = useState<QuestionnaireAnswer>(() => createEmptyAnswer(Q));
   const [step, setStep] = useState(0);
   const [showErrors, setShowErrors] = useState(false);
   const [completed, setCompleted] = useState<QuestionnaireAnswer | null>(null);
+  const [saved, setSaved] = useState(false);
 
   const section = Q.sections[step];
   const isLast = step === Q.sections.length - 1;
@@ -96,7 +113,13 @@ export function QuestionnaireWizard({
     }
     setShowErrors(false);
     if (isLast) {
-      if (isComplete(Q, answer)) setCompleted(answer);
+      if (!isComplete(Q, answer)) return;
+      if (mode === "save") {
+        setSaved(true);
+        if (saveKey) void markTabDone(saveKey).then(() => router.refresh()); // unlock + refresh locks
+      } else {
+        setCompleted(answer);
+      }
     } else {
       setStep((s) => s + 1);
     }
@@ -104,17 +127,18 @@ export function QuestionnaireWizard({
 
   function reset() {
     setCompleted(null);
+    setSaved(false);
     setAnswer(createEmptyAnswer(Q));
     setStep(0);
     setShowErrors(false);
   }
 
+  if (saved) return <SavedCard t={t} onReset={reset} />;
   if (completed) {
-    return renderResult ? (
-      <>{renderResult(completed, reset)}</>
-    ) : (
-      <ResultCard result={assessEligibility(mapToEligibility(completed))} t={t} onReset={reset} />
-    );
+    if (renderResult) return <>{renderResult(completed, reset)}</>;
+    if (mapToEligibility)
+      return <ResultCard result={assessEligibility(mapToEligibility(completed))} t={t} onReset={reset} />;
+    return null;
   }
 
   const globals = items.filter((it) => it.borrowerIndex === undefined);
@@ -189,9 +213,25 @@ export function QuestionnaireWizard({
           onClick={next}
           className="rounded-lg bg-brand-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-900"
         >
-          {isLast ? t("wizard.submit") : t("common.next")}
+          {isLast ? t(mode === "save" ? "wizard.save" : "wizard.submit") : t("common.next")}
         </button>
       </div>
+    </div>
+  );
+}
+
+function SavedCard({ t, onReset }: { t: TFn; onReset: () => void }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 className="text-lg font-bold text-emerald-700">{t("wizard.saved.title")}</h2>
+      <p className="mt-2 text-sm text-slate-600">{t("wizard.saved.desc")}</p>
+      <button
+        type="button"
+        onClick={onReset}
+        className="mt-5 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:border-brand-500"
+      >
+        {t("wizard.editAgain")}
+      </button>
     </div>
   );
 }

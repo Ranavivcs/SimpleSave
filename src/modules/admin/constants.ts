@@ -23,6 +23,8 @@ export const RISK_ROUTE_KINDS = ["FIXED", "VARIABLE", "PRIME", "ALL"] as const;
 
 export const INDEX_TYPES = ["NONE", "CPI", "USD", "EUR"] as const;
 
+export const AMORTIZATIONS = ["SHPITZER", "EQUAL_PRINCIPAL"] as const;
+
 export const RISK_INDEXED = ["YES", "NO", "ANY"] as const;
 
 /** Exit-penalty levels (free string in the schema; fixed domain in practice). */

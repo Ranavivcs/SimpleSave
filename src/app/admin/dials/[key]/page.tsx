@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/session";
 import { toPctOpt } from "@/modules/admin/format";
-import { INDEX_TYPES, ROUTE_KINDS } from "@/modules/admin/constants";
+import { AMORTIZATIONS, INDEX_TYPES, ROUTE_KINDS } from "@/modules/admin/constants";
 import { AdminPageHeader } from "@/modules/admin/AdminPageHeader";
 import { SubmitButton } from "@/modules/admin/SubmitButton";
 import {
@@ -14,8 +14,8 @@ import {
 } from "@/modules/admin/dials/actions";
 
 const cell =
-  "rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-blue-500 focus:outline-none";
-const ROW = "grid grid-cols-2 gap-2 sm:grid-cols-5 lg:grid-cols-10 lg:items-center";
+  "w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-blue-500 focus:outline-none";
+const GRID = "grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6";
 
 const KIND_KEY: Record<string, string> = {
   FIXED: "dials.kindFixed",
@@ -28,6 +28,19 @@ const INDEX_KEY: Record<string, string> = {
   USD: "dials.indexUsd",
   EUR: "dials.indexEur",
 };
+const AMORT_KEY: Record<string, string> = {
+  SHPITZER: "dials.amortShpitzer",
+  EQUAL_PRINCIPAL: "dials.amortEqualPrincipal",
+};
+
+function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-xs font-medium text-slate-500">{label}</span>
+      {children}
+    </label>
+  );
+}
 
 export default async function DialEditorPage({
   params,
@@ -60,14 +73,12 @@ export default async function DialEditorPage({
           {t("dials.templateTitle")}
         </h3>
         <div className="grid items-end gap-4 sm:grid-cols-4">
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium text-slate-700">{t("dials.name")}</span>
-            <input name="name" defaultValue={tpl.name} required className={`${cell} w-full`} />
-          </label>
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium text-slate-700">{t("dials.order")}</span>
-            <input name="order" type="number" step="1" defaultValue={tpl.order} required dir="ltr" className={`${cell} w-full`} />
-          </label>
+          <Labeled label={t("dials.name")}>
+            <input name="name" defaultValue={tpl.name} required className={cell} />
+          </Labeled>
+          <Labeled label={t("dials.order")}>
+            <input name="order" type="number" step="1" defaultValue={tpl.order} required dir="ltr" className={cell} />
+          </Labeled>
           <label className="flex items-center gap-2 pb-2 text-sm text-slate-700">
             <input name="shortenFixed" type="checkbox" defaultChecked={tpl.shortenFixed} className="h-4 w-4" />
             {t("dials.shortenFixed")}
@@ -106,22 +117,7 @@ export default async function DialEditorPage({
           </span>
         </div>
 
-        <div
-          className={`${ROW} mb-2 hidden px-1 text-xs font-semibold text-slate-500 lg:grid`}
-        >
-          <span>{t("dials.order")}</span>
-          <span>{t("dials.kind")}</span>
-          <span>{t("dials.sharePct")}</span>
-          <span>{t("dials.indexType")}</span>
-          <span>{t("dials.changeMonths")}</span>
-          <span>{t("dials.yearStep")}</span>
-          <span>{t("dials.anchorType")}</span>
-          <span>{t("dials.anchor")}</span>
-          <span>{t("dials.margin")}</span>
-          <span>{t("common.actions")}</span>
-        </div>
-
-        <div className="space-y-2">
+        <div className="space-y-3">
           {tpl.tracks.length === 0 && (
             <p className="py-4 text-sm text-slate-400">{t("common.none")}</p>
           )}
@@ -130,27 +126,60 @@ export default async function DialEditorPage({
             <form
               key={tr.id}
               action={updateTrack.bind(null, tr.id)}
-              className={`${ROW} rounded-xl bg-slate-50 p-2`}
+              className="rounded-xl bg-slate-50 p-3"
             >
               <input type="hidden" name="key" value={tpl.key} />
-              <input name="order" type="number" step="1" defaultValue={tr.order} required dir="ltr" className={cell} aria-label={t("dials.order")} />
-              <select name="kind" defaultValue={tr.kind} className={cell} aria-label={t("dials.kind")}>
-                {ROUTE_KINDS.map((k) => (
-                  <option key={k} value={k}>{t(KIND_KEY[k])}</option>
-                ))}
-              </select>
-              <input name="sharePct" type="number" step="1" defaultValue={tr.sharePct} required dir="ltr" className={cell} aria-label={t("dials.sharePct")} />
-              <select name="indexType" defaultValue={tr.indexType} className={cell} aria-label={t("dials.indexType")}>
-                {INDEX_TYPES.map((i) => (
-                  <option key={i} value={i}>{t(INDEX_KEY[i])}</option>
-                ))}
-              </select>
-              <input name="changeMonths" type="number" step="1" defaultValue={tr.changeMonths ?? ""} dir="ltr" className={cell} aria-label={t("dials.changeMonths")} />
-              <input name="yearStep" type="number" step="1" defaultValue={tr.yearStep ?? ""} dir="ltr" className={cell} aria-label={t("dials.yearStep")} />
-              <input name="anchorType" defaultValue={tr.anchorType ?? ""} dir="ltr" className={cell} aria-label={t("dials.anchorType")} />
-              <input name="anchor" type="number" step="0.01" defaultValue={toPctOpt(tr.anchor)} dir="ltr" className={cell} aria-label={t("dials.anchor")} />
-              <input name="margin" type="number" step="0.01" defaultValue={toPctOpt(tr.margin)} dir="ltr" className={cell} aria-label={t("dials.margin")} />
-              <div className="flex gap-2">
+              <div className={GRID}>
+                <Labeled label={t("dials.kind")}>
+                  <select name="kind" defaultValue={tr.kind} className={cell}>
+                    {ROUTE_KINDS.map((k) => (
+                      <option key={k} value={k}>{t(KIND_KEY[k])}</option>
+                    ))}
+                  </select>
+                </Labeled>
+                <Labeled label={t("dials.amortization")}>
+                  <select name="amortization" defaultValue={tr.amortization} className={cell}>
+                    {AMORTIZATIONS.map((a) => (
+                      <option key={a} value={a}>{t(AMORT_KEY[a])}</option>
+                    ))}
+                  </select>
+                </Labeled>
+                <Labeled label={t("dials.indexType")}>
+                  <select name="indexType" defaultValue={tr.indexType} className={cell}>
+                    {INDEX_TYPES.map((i) => (
+                      <option key={i} value={i}>{t(INDEX_KEY[i])}</option>
+                    ))}
+                  </select>
+                </Labeled>
+                <Labeled label={t("dials.sharePct")}>
+                  <input name="sharePct" type="number" step="1" defaultValue={tr.sharePct} required dir="ltr" className={cell} />
+                </Labeled>
+                <Labeled label={t("dials.totalPct")}>
+                  <input name="totalPct" type="number" step="1" defaultValue={tr.totalPct ?? ""} dir="ltr" className={cell} />
+                </Labeled>
+                <Labeled label={t("dials.termYears")}>
+                  <input name="termYears" type="number" step="1" min={4} max={30} defaultValue={tr.termYears ?? ""} dir="ltr" className={cell} />
+                </Labeled>
+                <Labeled label={t("dials.changeMonths")}>
+                  <input name="changeMonths" type="number" step="1" defaultValue={tr.changeMonths ?? ""} dir="ltr" className={cell} />
+                </Labeled>
+                <Labeled label={t("dials.yearStep")}>
+                  <input name="yearStep" type="number" step="1" defaultValue={tr.yearStep ?? ""} dir="ltr" className={cell} />
+                </Labeled>
+                <Labeled label={t("dials.anchorType")}>
+                  <input name="anchorType" defaultValue={tr.anchorType ?? ""} dir="ltr" className={cell} />
+                </Labeled>
+                <Labeled label={t("dials.anchor")}>
+                  <input name="anchor" type="number" step="0.01" defaultValue={toPctOpt(tr.anchor)} dir="ltr" className={cell} />
+                </Labeled>
+                <Labeled label={t("dials.margin")}>
+                  <input name="margin" type="number" step="0.01" defaultValue={toPctOpt(tr.margin)} dir="ltr" className={cell} />
+                </Labeled>
+                <Labeled label={t("dials.order")}>
+                  <input name="order" type="number" step="1" defaultValue={tr.order} required dir="ltr" className={cell} />
+                </Labeled>
+              </div>
+              <div className="mt-3 flex justify-end gap-2">
                 <SubmitButton className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-50">
                   {t("common.save")}
                 </SubmitButton>
@@ -174,29 +203,64 @@ export default async function DialEditorPage({
         ) : (
           <form
             action={createTrack.bind(null, tpl.id)}
-            className={`${ROW} mt-4 rounded-xl border border-dashed border-slate-300 p-2`}
+            className="mt-4 rounded-xl border border-dashed border-slate-300 p-3"
           >
-          <input type="hidden" name="key" value={tpl.key} />
-          <input name="order" type="number" step="1" defaultValue={tpl.tracks.length} required dir="ltr" className={cell} aria-label={t("dials.order")} />
-          <select name="kind" defaultValue="FIXED" className={cell} aria-label={t("dials.kind")}>
-            {ROUTE_KINDS.map((k) => (
-              <option key={k} value={k}>{t(KIND_KEY[k])}</option>
-            ))}
-          </select>
-          <input name="sharePct" type="number" step="1" defaultValue={0} required dir="ltr" className={cell} aria-label={t("dials.sharePct")} />
-          <select name="indexType" defaultValue="NONE" className={cell} aria-label={t("dials.indexType")}>
-            {INDEX_TYPES.map((i) => (
-              <option key={i} value={i}>{t(INDEX_KEY[i])}</option>
-            ))}
-          </select>
-          <input name="changeMonths" type="number" step="1" defaultValue="" dir="ltr" className={cell} aria-label={t("dials.changeMonths")} />
-          <input name="yearStep" type="number" step="1" defaultValue="" dir="ltr" className={cell} aria-label={t("dials.yearStep")} />
-          <input name="anchorType" defaultValue="" dir="ltr" className={cell} aria-label={t("dials.anchorType")} />
-          <input name="anchor" type="number" step="0.01" defaultValue="" dir="ltr" className={cell} aria-label={t("dials.anchor")} />
-          <input name="margin" type="number" step="0.01" defaultValue="" dir="ltr" className={cell} aria-label={t("dials.margin")} />
-          <SubmitButton className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-900 disabled:opacity-50">
-            {t("dials.addTrack")}
-          </SubmitButton>
+            <input type="hidden" name="key" value={tpl.key} />
+            <div className={GRID}>
+              <Labeled label={t("dials.kind")}>
+                <select name="kind" defaultValue="FIXED" className={cell}>
+                  {ROUTE_KINDS.map((k) => (
+                    <option key={k} value={k}>{t(KIND_KEY[k])}</option>
+                  ))}
+                </select>
+              </Labeled>
+              <Labeled label={t("dials.amortization")}>
+                <select name="amortization" defaultValue="SHPITZER" className={cell}>
+                  {AMORTIZATIONS.map((a) => (
+                    <option key={a} value={a}>{t(AMORT_KEY[a])}</option>
+                  ))}
+                </select>
+              </Labeled>
+              <Labeled label={t("dials.indexType")}>
+                <select name="indexType" defaultValue="NONE" className={cell}>
+                  {INDEX_TYPES.map((i) => (
+                    <option key={i} value={i}>{t(INDEX_KEY[i])}</option>
+                  ))}
+                </select>
+              </Labeled>
+              <Labeled label={t("dials.sharePct")}>
+                <input name="sharePct" type="number" step="1" defaultValue={0} required dir="ltr" className={cell} />
+              </Labeled>
+              <Labeled label={t("dials.totalPct")}>
+                <input name="totalPct" type="number" step="1" defaultValue="" dir="ltr" className={cell} />
+              </Labeled>
+              <Labeled label={t("dials.termYears")}>
+                <input name="termYears" type="number" step="1" min={4} max={30} defaultValue="" dir="ltr" className={cell} />
+              </Labeled>
+              <Labeled label={t("dials.changeMonths")}>
+                <input name="changeMonths" type="number" step="1" defaultValue="" dir="ltr" className={cell} />
+              </Labeled>
+              <Labeled label={t("dials.yearStep")}>
+                <input name="yearStep" type="number" step="1" defaultValue="" dir="ltr" className={cell} />
+              </Labeled>
+              <Labeled label={t("dials.anchorType")}>
+                <input name="anchorType" defaultValue="" dir="ltr" className={cell} />
+              </Labeled>
+              <Labeled label={t("dials.anchor")}>
+                <input name="anchor" type="number" step="0.01" defaultValue="" dir="ltr" className={cell} />
+              </Labeled>
+              <Labeled label={t("dials.margin")}>
+                <input name="margin" type="number" step="0.01" defaultValue="" dir="ltr" className={cell} />
+              </Labeled>
+              <Labeled label={t("dials.order")}>
+                <input name="order" type="number" step="1" defaultValue={tpl.tracks.length} required dir="ltr" className={cell} />
+              </Labeled>
+            </div>
+            <div className="mt-3 flex justify-end">
+              <SubmitButton className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-900 disabled:opacity-50">
+                {t("dials.addTrack")}
+              </SubmitButton>
+            </div>
           </form>
         )}
       </div>

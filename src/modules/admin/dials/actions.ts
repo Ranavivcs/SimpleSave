@@ -1,10 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import type { IndexType, RouteKind } from "@prisma/client";
+import type { Amortization, IndexType, RouteKind } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/session";
-import { int, num, optInt, optPct, optStr } from "@/modules/admin/format";
+import { int, num, optInt, optNum, optPct, optStr } from "@/modules/admin/format";
 
 /** Revalidate the list + the specific template editor (key from a hidden field). */
 function revalidateDial(key: FormDataEntryValue | null) {
@@ -37,6 +37,9 @@ function parseTrack(formData: FormData) {
     anchorType: optStr(formData.get("anchorType")),
     anchor: optPct(formData.get("anchor")),
     margin: optPct(formData.get("margin")),
+    amortization: String(formData.get("amortization")) as Amortization,
+    termYears: optInt(formData.get("termYears")),
+    totalPct: optNum(formData.get("totalPct")),
   };
 }
 

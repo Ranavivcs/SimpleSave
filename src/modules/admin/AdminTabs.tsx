@@ -10,6 +10,8 @@ const TABS = [
   { href: "/admin/dials", key: "dials", exact: false },
   { href: "/admin/rates", key: "rates", exact: false },
   { href: "/admin/parameters", key: "parameters", exact: false },
+  { href: "/admin/leads", key: "leads", exact: false },
+  { href: "/admin/advisors", key: "advisors", exact: false },
 ] as const;
 
 export function AdminTabs() {

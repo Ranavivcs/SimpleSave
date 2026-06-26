@@ -57,7 +57,7 @@ The remote feature branches can be deleted once `main` is pushed.
 - [~] Phase 3 — Customer guest flow: ✅ 3A engine · ✅ 3B eligibility core · ✅ 3B new-mortgage questionnaire UI + flow · 🔜 3C dials (resolver done, screen pending) · ⏳ 3D refi · ⏳ 3E insurance
 - [ ] Phase 4 — Customer accounts & personal area
 - [ ] Phase 5 — Document upload
-- [ ] Phase 6 — Advisor panel
+- [~] Phase 6 — Advisor panel: ✅ shell + my-clients tab (sort/filter/status/summary) · ⏳ tasks tab · ⏳ editable client mirror · ⏳ messaging
 - [ ] Phase 7 — Insurance module
 - [ ] Phase 8 — Post-mortgage tracking
 
@@ -79,6 +79,24 @@ The remote feature branches can be deleted once `main` is pushed.
 - **Private-area tweaks:** customer ↔ advisor **messaging** (send + receive both ways); customer can **see who their advisor is**; advisor gets a **notification/message at each new-mortgage stage** the client completes.
 
 **Run/auth:** `npm run dev` (pinned **:3001**). OTP login needs the Supabase dashboard set (Auth → URL Config: Site URL + redirect = `http://localhost:3001`) — see Session 14. `/account` has a dev guest-bypass for previewing.
+
+---
+
+## Session 18 — 2026-06-26 — Advisor area: shell + "my clients" tab ✅
+
+Branch `feat/phase-6-advisor-area` (off `feat/phase-4-personal-area`, so the future editable client mirror reuses the customer wizard/tabs instead of reimplementing them).
+- **`/advisor` shell** (`src/app/advisor/{layout,page}.tsx`): greeting `שלום, <name>` · `האזור שלי · יועץ` · logout. Gated by `getAdvisorContext()` (real `ADVISOR` role **or** a **dev-only preview cookie** + `AdvisorGate` — mirrors the account guest gate; no middleware change, so anonymous can still preview in dev). Added `requireAdvisor()` to `src/lib/auth/session.ts`.
+- **Two top-level views** (`AdvisorTabs`, `?view=`): **לקוחות שלי** (built) + **משימות** (placeholder this slice).
+- **My-clients tab** (`src/modules/advisor`): stat cards (משימות פתוחות / לקוחות שלי) · status counters + interactive filter chips (כל הלקוחות / לפני / בתהליך / אחרי תהליך) · clients **table** (שם · יועץ · סטטוס pill · שלב · בנקים מאושרים · תאריך טיפול · 💬) · expandable row → **read-only** client summary (request details + process). **Sort = next-treatment-date asc (nulls last), then unread-messages desc** (`sortClients` in `types.ts`).
+- **POC data:** `sampleClients.ts` — typed mock (4 clients, varied status) since the personal area is still in-memory (no persisted `MortgageRequest`/`Borrower`). A later phase swaps it for a Prisma query of the advisor's clients.
+- **i18n:** new `advisor.*` namespace in `messages/he.json` (incl. `advisor.banks.*` — TODO: move banks to config when a bank entity exists). Header shows an `אזור יועץ` link for `ADVISOR`s.
+- **Client detail (expanded row) is now tabbed** (`ClientDetail.tsx`, matches mockup sub-tabs): **סיכום** · **מסמכים** · **הודעות**.
+  - **Document review:** per-client doc list with status (`ממתין/אושר/נדחה/נדרש מסמך`); advisor can **אישור / סימון כלא תקין (with note) / בקשת מסמך**. Reviews the *workflow* on mock docs — real file storage still Phase 5.
+  - **Messaging:** per-client thread (advisor ⇄ customer), send + receive; opening a client clears its 💬 unread badge. Advisor→customer **send** works; the customer side / two-way persistence lands when the DB entities + customer `הודעות ליועץ` tab are wired.
+  - Mutations update **in-session state** held in `ClientsPanel` (consistent with the in-memory app); reset on reload until persistence.
+- **Verified at runtime** (:3001): gate → preview → list; sort + counts; status filter; expand → tabs; **approve/reject a doc (status + note update)**; **send a message (appends to thread)**; unread clears on open. `npm run build` ✓ (`/advisor` route), tsc clean, **40/40 tests**.
+
+**Next slices (NOT started):** tasks-tab logic · **editable personal/mortgage data** in the mirror (reuse `/account` wizard tabs) · wire messaging two-way to the customer `הודעות ליועץ` tab + persist · per-stage advisor notifications.
 
 ---
 

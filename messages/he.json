@@ -119,6 +119,113 @@
     "loggedInAs": "מחובר כ-{email}",
     "logout": "יציאה"
   },
+  "advisor": {
+    "greeting": "שלום, {name}",
+    "areaSubtitle": "האזור שלי · יועץ",
+    "logout": "יציאה",
+    "navLink": "אזור יועץ",
+    "tasksSoon": "ניהול המשימות והמעקבים ייבנה בשלב הבא.",
+    "gate": {
+      "title": "אזור היועץ",
+      "desc": "כניסה לאזור היועץ מותרת למשתמשים עם הרשאת יועץ.",
+      "login": "כניסה כיועץ",
+      "preview": "תצוגה מקדימה (פיתוח)"
+    },
+    "stats": {
+      "openTasks": "משימות פתוחות",
+      "myClients": "לקוחות שלי"
+    },
+    "views": {
+      "clients": "לקוחות שלי",
+      "tasks": "משימות"
+    },
+    "filters": {
+      "all": "כל הלקוחות",
+      "before": "לפני תהליך",
+      "in": "בתהליך",
+      "after": "אחרי תהליך"
+    },
+    "status": {
+      "before": "לפני תהליך",
+      "in": "בתהליך",
+      "after": "אחרי תהליך"
+    },
+    "stage": {
+      "personal": "פרטים אישיים",
+      "mortgage": "נתוני משכנתא",
+      "approval": "אישור עקרוני",
+      "collateral": "בטחונות",
+      "done": "הושלם"
+    },
+    "table": {
+      "name": "שם לקוח",
+      "advisor": "יועץ",
+      "status": "סטטוס",
+      "stage": "שלב",
+      "approvedBanks": "בנקים מאושרים",
+      "nextTreatment": "תאריך טיפול קרוב",
+      "messages": "הודעות",
+      "empty": "אין לקוחות בתצוגה זו."
+    },
+    "banks": {
+      "leumi": "בנק לאומי",
+      "hapoalim": "בנק הפועלים",
+      "mizrahi": "מזרחי-טפחות",
+      "discount": "בנק דיסקונט",
+      "beinleumi": "הבנק הבינלאומי",
+      "jerusalem": "בנק ירושלים",
+      "mercantile": "בנק מרכנתיל"
+    },
+    "requests": {
+      "new-mortgage": "משכנתא חדשה",
+      "refinance": "מחזור משכנתא",
+      "insurance": "ביטוח משכנתא"
+    },
+    "summary": {
+      "request": "פרטי הבקשה",
+      "requestType": "סוג בקשה",
+      "propertyValue": "שווי נכס",
+      "equity": "הון עצמי",
+      "loanAmount": "סכום הלוואה",
+      "process": "סטטוס תהליך",
+      "nextTreatment": "תאריך טיפול קרוב"
+    },
+    "detail": {
+      "tabs": {
+        "summary": "סיכום",
+        "documents": "מסמכים",
+        "messages": "הודעות"
+      }
+    },
+    "docNames": {
+      "id": "צילום תעודת זהות",
+      "payslips": "תלושי שכר",
+      "bankStatements": "דפי חשבון בנק",
+      "taxReturn": "דוח שנתי למס הכנסה"
+    },
+    "docStatus": {
+      "pending": "ממתין לבדיקה",
+      "approved": "אושר",
+      "rejected": "נדחה",
+      "requested": "נדרש מסמך"
+    },
+    "docActions": {
+      "approve": "אישור",
+      "reject": "סימון כלא תקין",
+      "request": "בקשת מסמך",
+      "rejectNote": "המסמך אינו תקין, נא להעלות מחדש."
+    },
+    "documents": {
+      "empty": "לא הועלו מסמכים."
+    },
+    "messages": {
+      "placeholder": "כתוב הודעה ללקוח...",
+      "send": "שליחה",
+      "you": "יועץ",
+      "client": "לקוח",
+      "empty": "אין הודעות עדיין."
+    }
+  },
   "account": {
     "title": "האזור האישי",
     "myRequests": "הבקשות שלי",

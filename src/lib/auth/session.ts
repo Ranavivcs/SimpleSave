@@ -46,3 +46,8 @@ export async function requireRole(role: UserRole): Promise<Profile> {
 export async function requireAdmin(): Promise<Profile> {
   return requireRole("ADMIN");
 }
+
+/** Guard for the advisor area. */
+export async function requireAdvisor(): Promise<Profile> {
+  return requireRole("ADVISOR");
+}

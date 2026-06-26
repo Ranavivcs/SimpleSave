@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { getSessionUser } from "@/lib/auth/session";
+import { getSessionUser, getProfile } from "@/lib/auth/session";
 import { signOut } from "@/modules/auth/actions";
 
 /**
@@ -11,7 +11,9 @@ import { signOut } from "@/modules/auth/actions";
  */
 export async function SiteHeader() {
   const t = await getTranslations("common");
+  const tAdvisor = await getTranslations("advisor");
   const user = await getSessionUser();
+  const profile = user ? await getProfile() : null;
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur">
@@ -26,6 +28,14 @@ export async function SiteHeader() {
         </nav>
 
         <div className="ms-auto flex items-center gap-2">
+          {profile?.role === "ADVISOR" && (
+            <Link
+              href="/advisor"
+              className="rounded-lg px-4 py-2 text-sm font-semibold text-brand-700 hover:bg-brand-50"
+            >
+              {tAdvisor("navLink")}
+            </Link>
+          )}
           <Link
             href="/account"
             className="rounded-lg border border-brand-600 px-4 py-2 text-sm font-semibold text-brand-700 hover:bg-brand-50"

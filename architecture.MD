@@ -113,10 +113,10 @@ Hebrew-first RTL, i18n-ready, accessibility-first.
 ```
 simplesave/
 ├─ src/
-│  ├─ app/                 # App Router (home; login/; admin/; questionnaire/[variant]/; demo/)
+│  ├─ app/                 # App Router (home; login/; admin/; advisor/; account/; questionnaire/[variant]/; demo/)
 │  ├─ proxy.ts             # ✅ Next-16 "proxy" (was middleware): session refresh + /admin gate
-│  ├─ components/layout/   # shared UI (SiteHeader)
-│  ├─ modules/             # one self-contained folder per feature (home; auth; questionnaire; admin next)
+│  ├─ components/layout/   # shared UI (SiteHeader — auth-aware; אזור יועץ link for advisors)
+│  ├─ modules/             # one self-contained folder per feature (home; auth; questionnaire; account; documents; advisor)
 │  ├─ lib/
 │  │  ├─ calc/             # ✅ ported calc engine — pure, testable (finance/route/mix/risk)
 │  │  ├─ questionnaire/    # ✅ config-driven wizard engine — pure, testable (conditions/validation/engine)
@@ -172,3 +172,8 @@ Shared single login entry (personal area), OTP-based.
 `/admin` is gated by `src/proxy.ts` (anonymous → `/login`) **and** `requireAdmin()` in `src/app/admin/layout.tsx`
 (the role check). Authorization is enforced in the **app layer** — Prisma's pooled connection bypasses Postgres RLS,
 which is kept as defense-in-depth (`Profile` self-read policy). Any server mutation must re-check role server-side.
+
+The **advisor area** `/advisor` is gated in its layout via `getAdvisorContext()` (real `ADVISOR` role, or a
+**dev-only preview cookie** for demoing — never in production). It is *not* gated in `proxy.ts`, so the dev preview
+works for anonymous visitors (like the personal-area guest gate). Its "my clients" list is mock-backed for the POC
+(`src/modules/advisor/sampleClients.ts`) until persisted `MortgageRequest`/`Borrower` entities exist.

@@ -82,6 +82,7 @@ Hebrew-first RTL, i18n-ready, accessibility-first.
 ## 5. Key Data Entities
 
 `Profile` (auth/role) · `User` · `Borrower` · `MortgageRequest` (new/refi/insurance) · `QuestionnaireAnswer` · `MortgageMix` (5 dials) · `MortgageTrack` · `Document` · `BankApproval` · `InsuranceOffer` · `ActiveMortgage` · `MortgageDisbursement` · `Advisor` · `Task` · `InterestRateTable` · `GlobalParameters`
+> **Built so far (Phase 6 POC):** `AdvisorClient` · `AdvisorClientDocument` · `AdvisorClientMessage` (advisor/customer messaging + advisor-area persistence; request summary denormalized — to be folded into the real `MortgageRequest`/`Borrower`/`Document` in Option B).
 
 > Detailed field-level schema TBD per entity as each module is built. Add schema sections here as they solidify.
 
@@ -130,8 +131,9 @@ simplesave/
 │  └─ i18n/                # config.ts, request.ts
 ├─ messages/he.json        # all UI strings (externalized)
 ├─ prisma/
-│  ├─ schema.prisma        # ✅ config-backbone models + Profile/UserRole (Phase 2C)
+│  ├─ schema.prisma        # ✅ config backbone + Profile/UserRole (2C) + AdvisorClient/Document/Message (Phase 6)
 │  ├─ seed.mjs             # ✅ seeds config from simulator defaults
+│  ├─ seed-advisor.mjs     # ✅ seeds advisor demo clients/docs/messages — Phase 6 (npm run db:seed:advisor)
 │  ├─ create-admin.mjs     # ✅ bootstrap/promote an ADMIN (service_role) — Phase 2C
 │  └─ rls-profile.sql      # ✅ RLS on Profile (defense-in-depth) — Phase 2C
 ├─ prisma.config.ts        # ✅ Prisma 7 connection config (DIRECT_URL)
@@ -175,5 +177,15 @@ which is kept as defense-in-depth (`Profile` self-read policy). Any server mutat
 
 The **advisor area** `/advisor` is gated in its layout via `getAdvisorContext()` (real `ADVISOR` role, or a
 **dev-only preview cookie** for demoing — never in production). It is *not* gated in `proxy.ts`, so the dev preview
-works for anonymous visitors (like the personal-area guest gate). Its "my clients" list is mock-backed for the POC
-(`src/modules/advisor/sampleClients.ts`) until persisted `MortgageRequest`/`Borrower` entities exist.
+works for anonymous visitors (like the personal-area guest gate). The `SiteHeader` `אזור יועץ` link shows for real
+advisors always, and for everyone in dev (marked `(dev)`).
+
+Its data is **persisted in Supabase** (Phase 6, Option A): models `AdvisorClient` / `AdvisorClientDocument` /
+`AdvisorClientMessage`. The server query `src/modules/advisor/data.ts` (`getAdvisorClients`) maps DB enums → the app
+types the UI consumes (unread = customer messages with `read=false`); writes go through server actions in
+`src/modules/advisor/actions.ts` (`setDocStatusAction`/`sendMessageAction`/`markClientReadAction`). Customer-side
+advisor messaging is wired in `/account/[type]?tab=messages` through `src/modules/account/advisorThread.ts` and
+`sendCustomerAdvisorMessageAction`, reusing the same `AdvisorClientMessage` rows. The request summary is
+**denormalized** on `AdvisorClient` for the POC — a later phase (Option B) links it to a real advisor `Profile` and the
+customer's `MortgageRequest`/`Borrower`/`Document` so the advisor and customer share one record. Seeded by
+`prisma/seed-advisor.mjs` (`npm run db:seed:advisor`).

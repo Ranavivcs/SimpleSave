@@ -12,6 +12,7 @@ import type {
 import { CLIENT_STATUSES } from "./types";
 import { formatDate } from "./format";
 import { ClientDetail } from "./ClientDetail";
+import { setDocStatusAction, sendMessageAction, markClientReadAction } from "./actions";
 
 type Filter = ClientProcessStatus | "all";
 
@@ -55,15 +56,19 @@ export function ClientsPanel({ clients }: { clients: AdvisorClient[] }) {
 
   const rows = filter === "all" ? clients : clients.filter((c) => c.status === filter);
 
+  // Each handler updates local state immediately (snappy UI) and persists via a
+  // server action; on reload the page re-reads the saved values from the DB.
+
   /** Open/close a row; opening marks the client's messages as read. */
   const toggle = (id: string) => {
     setOpenId((prev) => (prev === id ? null : id));
-    if (openId !== id) {
+    if (openId !== id && state[id].unread > 0) {
       setState((s) => ({ ...s, [id]: { ...s[id], unread: 0 } }));
+      void markClientReadAction(id);
     }
   };
 
-  const setDocStatus = (clientId: string, docId: string, status: DocStatus, note?: string) =>
+  const setDocStatus = (clientId: string, docId: string, status: DocStatus, note?: string) => {
     setState((s) => ({
       ...s,
       [clientId]: {
@@ -73,8 +78,10 @@ export function ClientsPanel({ clients }: { clients: AdvisorClient[] }) {
         ),
       },
     }));
+    void setDocStatusAction(docId, status, note);
+  };
 
-  const sendMessage = (clientId: string, text: string) =>
+  const sendMessage = (clientId: string, text: string) => {
     setState((s) => ({
       ...s,
       [clientId]: {
@@ -85,6 +92,8 @@ export function ClientsPanel({ clients }: { clients: AdvisorClient[] }) {
         ],
       },
     }));
+    void sendMessageAction(clientId, text);
+  };
 
   return (
     <div>

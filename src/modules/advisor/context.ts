@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { getProfile } from "@/lib/auth/session";
-import { SAMPLE_ADVISOR_NAME } from "./sampleClients";
+import { SAMPLE_ADVISOR_NAME } from "./constants";
 
 export interface AdvisorContext {
   /** Display name for the greeting. */

@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { AdvisorTabs, ADVISOR_VIEWS, type AdvisorView } from "@/modules/advisor/AdvisorTabs";
 import { ClientsPanel } from "@/modules/advisor/ClientsPanel";
-import { sampleClients } from "@/modules/advisor/sampleClients";
+import { getAdvisorClients } from "@/modules/advisor/data";
 import { sortClients, statusCounts, CLIENT_STATUSES } from "@/modules/advisor/types";
 
 /**
@@ -19,7 +19,7 @@ export default async function AdvisorPage({
     : "clients";
   const t = await getTranslations("advisor");
 
-  const clients = sortClients(sampleClients);
+  const clients = sortClients(await getAdvisorClients());
   const counts = statusCounts(clients);
   const openTasks = 0; // tasks tab is a later slice
 

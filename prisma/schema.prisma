@@ -195,3 +195,83 @@ model Profile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// ---------- advisor area (Phase 6) ----------
+// POC persistence for the advisor "my clients" tab: a client under an advisor,
+// their reviewed documents, and the advisor⇄customer message thread. The request
+// summary is denormalized here for now; a later phase replaces this with the real
+// MortgageRequest/Borrower entities shared with the customer personal area.
+
+enum ClientProcessStatus {
+  BEFORE // לפני תהליך
+  IN // בתהליך
+  AFTER // אחרי תהליך
+}
+
+enum ClientStage {
+  PERSONAL // פרטים אישיים
+  MORTGAGE // נתוני משכנתא
+  APPROVAL // אישור עקרוני
+  COLLATERAL // בטחונות
+  DONE // הושלם
+}
+
+enum DocReviewStatus {
+  PENDING // ממתין לבדיקה
+  APPROVED // אושר
+  REJECTED // נדחה
+  REQUESTED // נדרש מסמך
+}
+
+enum MessageSender {
+  ADVISOR
+  CUSTOMER
+}
+
+model AdvisorClient {
+  id          String              @id @default(cuid())
+  name        String
+  email       String
+  advisorName String // display name of the owning advisor (POC; no FK to Profile yet)
+  status      ClientProcessStatus @default(BEFORE)
+  stage       ClientStage         @default(PERSONAL)
+  approvedBanks String[] // bank id keys (resolve via i18n advisor.banks.*)
+  nextTreatment DateTime?
+  notes         String  @default("")
+
+  // request summary (denormalized for the POC)
+  requestType   String
+  propertyValue Int
+  equity        Int
+  loanAmount    Int
+
+  documents AdvisorClientDocument[]
+  messages  AdvisorClientMessage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AdvisorClientDocument {
+  id       String          @id @default(cuid())
+  client   AdvisorClient   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String
+  nameKey  String // document-name key (i18n advisor.docNames.*)
+  status   DocReviewStatus @default(PENDING)
+  note     String?
+  order    Int             @default(0)
+
+  @@index([clientId])
+}
+
+model AdvisorClientMessage {
+  id       String        @id @default(cuid())
+  client   AdvisorClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String
+  sender   MessageSender
+  text     String
+  read     Boolean       @default(false) // false = unread by the advisor (drives the 💬 badge)
+  sentAt   DateTime      @default(now())
+
+  @@index([clientId])
+}

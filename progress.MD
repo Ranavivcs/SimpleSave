@@ -63,6 +63,25 @@ The remote feature branches can be deleted once `main` is pushed.
 
 ---
 
+## 🔀 NEXT SESSION — HANDOFF (2026-06-26)
+
+**Branches in flight (origin):**
+- `feat/phase-2d-admin-config` (balisia) — admin config UI (`/admin/{dials,rates,parameters,risk}` + i18n split `messages/he/admin.json`). ✅ trial-merges **CLEAN** into main; clean vs ours. Partner is verifying 2D works before merge.
+- `new-mortgage-remake` (ital) — landing new-mortgage questionnaire + dials/clocks screen (`src/modules/{dials,new-mortgage}`). **Decision: ital's landing new-mortgage WINS.**
+- `feat/phase-4-personal-area` (us) — personal area. ✅ trial-merges **CLEAN** into main; clean vs 2D. Pushed.
+
+**Merge plan:**
+1. Merge **2D → main**, then **ours → main** — both CLEAN (only `progress.MD` reconciles; `.gitattributes` union handles it). Gate: balisia confirms 2D.
+2. **ital needs a manual reconcile** (not a doc conflict — real overlap). He conflicts on the **shared wizard**: `QuestionnaireWizard.tsx`, `FieldInput.tsx`, `src/app/demo/questionnaire/page.tsx`, and `sampleNewMortgage.ts` (he deleted it; we modified it) — because he rewrote the wizard our private area also uses. Resolution: ital integrates the updated `main` and keeps his landing new-mortgage **while preserving our table inputs + `mode="save"` + tab-locking (`saveKey`)** in the shared wizard. **Agree ONE owner for `QuestionnaireWizard`/`FieldInput` going forward.**
+
+**Planned next (NOT started):**
+- **Advisor area (אזור יועץ):** tabs — (a) my **tasks/follow-ups** (advisor-created, ongoing tracking); (b) **my clients** (all clients under this advisor), ordered by next-treatment-date + client messages; show client **status** (לפני/בתהליך/אחרי תהליך). Plus a **full client mirror** identical to the customer view (personal data → mortgage data → documents → אישור עקרוני → בטחונות) but **editable by the advisor** (edit income, request more docs, mark a doc invalid, etc.). Mockups provided (advisor dashboard screenshots: tasks/clients table + client detail with status pills + "סיכום פרטי הלקוח" / PDF export).
+- **Private-area tweaks:** customer ↔ advisor **messaging** (send + receive both ways); customer can **see who their advisor is**; advisor gets a **notification/message at each new-mortgage stage** the client completes.
+
+**Run/auth:** `npm run dev` (pinned **:3001**). OTP login needs the Supabase dashboard set (Auth → URL Config: Site URL + redirect = `http://localhost:3001`) — see Session 14. `/account` has a dev guest-bypass for previewing.
+
+---
+
 ## Session 17 — 2026-06-25 — Personal area: mortgage-data tab + sequential tab locking ✅
 
 - **נתוני משכנתא tab:** `mortgageData` config (status/property/finance/extra; property-details + equity-source tables; conditionals). Rendered via the wizard (`mode="save"`). Refinance-specific fields are a TODO variant.

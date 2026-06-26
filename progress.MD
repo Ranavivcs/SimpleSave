@@ -54,12 +54,26 @@ The remote feature branches can be deleted once `main` is pushed.
 - [x] Phase 2B — Config seeded
 - [x] Phase 2C — Auth (OTP) + roles + admin guard
 - [ ] Phase 2D — Admin config UI  ← **next**
-- [~] Phase 3 — Customer guest flow: ✅ 3A engine · ✅ 3B eligibility core · ✅ 3B new-mortgage questionnaire UI + flow · 🔜 3C dials (resolver done, screen pending) · ⏳ 3D refi · ⏳ 3E insurance
+- [~] Phase 3 — Customer guest flow: ✅ 3A questionnaire engine · ✅ 3B eligibility core · ✅ 3C resolver (config→engine) · ✅ new-mortgage questionnaire UI (`/questionnaire/new-mortgage`) · ✅ 3C dials UI (מסך השעונים) · ⏳ mortgage-data page (placeholder) · ⏳ refi/insurance questionnaires · ⏳ 3D refi · ⏳ 3E insurance
 - [ ] Phase 4 — Customer accounts & personal area
 - [ ] Phase 5 — Document upload
 - [ ] Phase 6 — Advisor panel
 - [ ] Phase 7 — Insurance module
 - [ ] Phase 8 — Post-mortgage tracking
+
+---
+
+## Session 15 — 2026-06-26 — Merge new-mortgage-remake → main: remake new-mortgage flow + dials screen ✅
+
+**Done — reconciled two parallel new-mortgage implementations; the "remake" is now canonical (client decision).**
+- **Canonical new-mortgage flow** = `src/modules/new-mortgage/` at `/questionnaire/new-mortgage` (static route beats `[variant]`). Config in the client's spec order; loan type × property source → effective LTV; equity gate (per-type %), equity<value guard, and 40%-of-net desired-payment cap via the eligibility engine; per-borrower name / birth date / income / is-owner (non-owner income ×50%); live estimated-loan line.
+- **Dials screen (מסך השעונים)** = `src/modules/dials/` on completion: 5 cards (initial payment / total / interest+indexation), custom-SVG risk speedometer, בחר שעון + פירוט (custom-SVG monthly + cumulative chart). `getDials` server action: `loadDialsConfig` → `resolveDials` → light `toDialCards`. "קבל פירוט" → mortgage-data stub.
+- **Superseded the Phase 3B POC:** removed `src/modules/questionnaire/content/newMortgage.ts` + `mappers.ts`; `QuestionnaireWizard` is the remake's prop-based API (`questionnaire` + `mapToEligibility` + `extraValidate?` + `renderSummary?` + `renderResult?`); `[variant]` route slimmed to refinance/insurance "בקרוב".
+- **Kept from main (partner's work):** auth magic-link fix (`/auth/confirm`, `site-url.ts`, dev port 3001), 3C resolver (`src/lib/dials`), refi/insurance routing, Supabase/Prisma setup.
+- All copy in `messages/he.json` (merged; one `wizard.*`, plus `newMortgage.*` + `dials.*`; kept `questionnaire.comingSoon*`). `npx tsc --noEmit` clean; **58/58 tests** (incl. `dialView.test.ts` + `newMortgage.test.ts`).
+- **BoI rate (checked, not changed):** current **3.75%** (cut 2026-05-25) → prime ≈ **5.25%**; seeded prime **4.56%** stale by ~0.7pp (admin-editable config → fix via Phase 2D / re-seed).
+
+**Next:** mortgage-data page ("דף נתוני משכנתא"); Phase 2D admin config UI; Phase 4 personal area (partner's `feat/phase-4-personal-area`).
 
 ---
 

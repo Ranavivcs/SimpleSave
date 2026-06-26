@@ -113,10 +113,12 @@ Hebrew-first RTL, i18n-ready, accessibility-first.
 ```
 simplesave/
 ├─ src/
-│  ├─ app/                 # App Router (home; login/; admin/; questionnaire/[variant]/; demo/)
+│  ├─ app/                 # App Router (home; login/; admin/; auth/confirm; questionnaire/new-mortgage[/mortgage-data] + [variant] for refi/insurance; demo→redirect)
 │  ├─ proxy.ts             # ✅ Next-16 "proxy" (was middleware): session refresh + /admin gate
 │  ├─ components/layout/   # shared UI (SiteHeader)
-│  ├─ modules/             # one self-contained folder per feature (home; auth; questionnaire; admin next)
+│  ├─ modules/             # one self-contained folder per feature:
+│  │                       #   home · auth · questionnaire (generic wizard + FieldInput) · new-mortgage (config + LTV mapping + validation)
+│  │                       #   · dials (5-dial results screen: getDials server action + dialView + SVG Speedometer/PaymentChart)
 │  ├─ lib/
 │  │  ├─ calc/             # ✅ ported calc engine — pure, testable (finance/route/mix/risk)
 │  │  ├─ questionnaire/    # ✅ config-driven wizard engine — pure, testable (conditions/validation/engine)
@@ -135,6 +137,7 @@ simplesave/
 │  ├─ create-admin.mjs     # ✅ bootstrap/promote an ADMIN (service_role) — Phase 2C
 │  └─ rls-profile.sql      # ✅ RLS on Profile (defense-in-depth) — Phase 2C
 ├─ prisma.config.ts        # ✅ Prisma 7 connection config (DIRECT_URL)
+├─ vitest.config.ts        # ✅ test runner config (resolves the @/* path alias)
 ├─ public/logo.png
 ├─ assets/                 # logo source, forms/, reference/ (client material)
 ├─ .env.example            # ✅ env template (tracked, no secrets) — copy to .env.local

@@ -206,10 +206,11 @@ model Profile {
   updatedAt DateTime @updatedAt
 }
 
-// ---------- advisor area (Phase 6 — feat/phase-6-advisor-area) ----------
-// Owned by the Phase 6 advisor-area work; mirrored here EXACTLY so this branch's
-// `db push` stays additive and never drops these already-seeded tables. The admin
-// Leads/Advisors UI builds on these (assign a lead = set `advisorName`).
+// ---------- advisor area (Phase 6) ----------
+// POC persistence for the advisor "my clients" tab: a client under an advisor,
+// their reviewed documents, and the advisor⇄customer message thread. The request
+// summary is denormalized here for now; a later phase replaces this with the real
+// MortgageRequest/Borrower entities shared with the customer personal area.
 
 enum ClientProcessStatus {
   BEFORE // לפני תהליך

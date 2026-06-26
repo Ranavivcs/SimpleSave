@@ -1,0 +1,4 @@
+# Append-only tracking logs: auto-keep both sides on merge (no manual conflicts).
+# Do NOT use union for code/JSON (it interleaves and breaks them).
+progress.MD   merge=union
+architecture.MD merge=union

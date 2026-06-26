@@ -22,9 +22,9 @@
 - **Phase 3A + 3B engine cores (merged to `main`):** pure questionnaire engine (`src/lib/questionnaire`) + eligibility/repayment-capacity engine (`src/lib/eligibility`) + their contracts. 34/34 tests green, tsc clean.
 - **Phase 2C (auth) — DONE:** Supabase email-OTP login (`/login`) · `Profile` + `UserRole` (customer/advisor/admin) · app-layer guards (`src/lib/auth`) · `/admin` gated by `proxy.ts` + `requireAdmin()`. Admin `ranaviv.cs@gmail.com` bootstrapped; RLS on `Profile` (defense-in-depth). **Guest calculator stays public.**
 
-**▶ NEXT — Phase 2D:**
-- **2D:** Admin config UI — CRUD over the seeded config (dial editor = mockup 4, rate tables = mockup 6, global params). Put it under `src/modules/admin`, rendered inside the now-guarded `/admin` area.
-- Then **Phase 3** (customer flow) needs a **template→engine resolver**: map DB enums→Hebrew domain values, resolve anchor/margin from `RateBand`, and pick track years from `yearStep` via the optimizer (port the simulator's `calculateMixToRange`). (3A questionnaire engine + 3B eligibility core already merged.)
+**▶ NEXT — Phase 3C dials screen / Phase 3:**
+- **2D — DONE (session 15):** Admin config UI (params · rates · dials · risk) under `src/modules/admin` + `/admin`. i18n strings now split into per-feature `messages/he/*.json` files (shared base file is no longer a conflict surface).
+- **Phase 3** (customer flow) needs a **template→engine resolver**: map DB enums→Hebrew domain values, resolve anchor/margin from `RateBand`, and pick track years from `yearStep` via the optimizer (port the simulator's `calculateMixToRange`). (3A questionnaire engine + 3B eligibility core already merged.)
 - **Auth for new admin pages:** place them under `/admin` (covered by `requireAdmin()` in `src/app/admin/layout.tsx`); re-check role in any server mutation (Prisma bypasses RLS).
 
 **How to run (Windows; Bash + PowerShell tools available):**
@@ -53,13 +53,32 @@ The remote feature branches can be deleted once `main` is pushed.
 - [x] Phase 2A — Supabase + Prisma wired
 - [x] Phase 2B — Config seeded
 - [x] Phase 2C — Auth (OTP) + roles + admin guard
-- [ ] Phase 2D — Admin config UI  ← **next**
+- [x] Phase 2D — Admin config UI ✅ (config CRUD: params · rates · dials · risk)
 - [~] Phase 3 — Customer guest flow: ✅ 3A engine · ✅ 3B eligibility core · ✅ 3B new-mortgage questionnaire UI + flow · 🔜 3C dials (resolver done, screen pending) · ⏳ 3D refi · ⏳ 3E insurance
 - [ ] Phase 4 — Customer accounts & personal area
 - [ ] Phase 5 — Document upload
 - [ ] Phase 6 — Advisor panel
 - [ ] Phase 7 — Insurance module
 - [ ] Phase 8 — Post-mortgage tracking
+
+---
+
+## Session 15 — 2026-06-26 — Phase 2D: Admin config UI ✅
+
+**Done — full admin CRUD over the seeded config. Branch `feat/phase-2d-admin-config` (off `main`).**
+- **i18n namespace split** (`src/i18n/request.ts`): base `messages/he.json` + every `messages/he/*.json` deep-merged on top (fs read, cached in prod). Per-feature string files mean contributors stop all editing the one shared file → no more `he.json` merge conflicts. This phase's strings live in `messages/he/admin.json`.
+- **`/admin` dashboard** (`src/app/admin/page.tsx`): cards → parameters / rates / dials / risk.
+- **Parameters** (`/admin/parameters`): single active `GlobalParameters` row form; rate-type fields edited as % and converted to decimals on save (rounded to preserve calc parity). `src/modules/admin/parameters`.
+- **Rate tables** (`/admin/rates`): full CRUD over `RateBand` (purpose · routeKey · year range · anchor% · margin%). `src/modules/admin/rates`.
+- **Risk rules** (`/admin/risk`): full CRUD over `RiskRule`. `src/modules/admin/risk`.
+- **Dial templates** (`/admin/dials` → `/admin/dials/[key]`): edit template (name/order/flags) + per-track CRUD + live share-sum (=100%) indicator. `src/modules/admin/dials`.
+- All mutations are Server Actions that re-check `requireAdmin()` (Server Actions are POST-reachable, not only via the guarded UI) + `revalidatePath`. One shared `SubmitButton` (useFormStatus) keeps the pages as server components.
+- **Stale prime rate (flagged session 14) is now admin-fixable** at `/admin/parameters`.
+- **Verify:** `npx tsc --noEmit` clean · 40/40 tests · `/` 200 (i18n merge OK) · all 5 admin routes 307→/login (guard OK) · clean Turbopack compiles. Rendered-with-data UI not verified headlessly (needs admin OTP login).
+
+**Not committed** — awaiting approval (per [[ask-before-commit-push]]).
+
+**Next:** Phase 3C dials screen, or surface admin nav links in `src/app/admin/layout.tsx`.
 
 ---
 

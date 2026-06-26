@@ -61,10 +61,10 @@ export default async function RatesPage() {
                   </option>
                 ))}
               </select>
-              <select name="routeKey" defaultValue={b.routeKey} className={cell} dir="ltr">
+              <select name="routeKey" defaultValue={b.routeKey} className={cell}>
                 {ROUTE_KEYS.map((k) => (
                   <option key={k} value={k}>
-                    {k}
+                    {t(`rates.route.${k}`)}
                   </option>
                 ))}
               </select>
@@ -100,10 +100,10 @@ export default async function RatesPage() {
               </option>
             ))}
           </select>
-          <select name="routeKey" defaultValue="prime" className={cell} dir="ltr">
+          <select name="routeKey" defaultValue="prime" className={cell}>
             {ROUTE_KEYS.map((k) => (
               <option key={k} value={k}>
-                {k}
+                {t(`rates.route.${k}`)}
               </option>
             ))}
           </select>

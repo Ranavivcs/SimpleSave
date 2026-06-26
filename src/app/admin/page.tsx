@@ -2,10 +2,9 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 
 const SECTIONS = [
-  { href: "/admin/parameters", key: "parameters" },
-  { href: "/admin/rates", key: "rates" },
   { href: "/admin/dials", key: "dials" },
-  { href: "/admin/risk", key: "risk" },
+  { href: "/admin/rates", key: "rates" },
+  { href: "/admin/parameters", key: "parameters" },
 ] as const;
 
 export default async function AdminHomePage() {

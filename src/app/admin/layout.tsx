@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { requireAdmin } from "@/lib/auth/session";
 import { signOut } from "@/modules/auth/actions";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { AdminTabs } from "@/modules/admin/AdminTabs";
 
 /**
  * Admin-area shell. `requireAdmin()` enforces the role on the server (redirects
@@ -31,6 +32,7 @@ export default async function AdminLayout({
             </form>
           </div>
         </div>
+        <AdminTabs />
         {children}
       </div>
     </>

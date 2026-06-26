@@ -87,7 +87,12 @@ export default async function DialEditorPage({
       {/* tracks */}
       <div className="rounded-2xl border border-slate-200 bg-white p-4">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-slate-900">{t("dials.tracksTitle")}</h3>
+          <h3 className="text-sm font-semibold text-slate-900">
+            {t("dials.tracksTitle")}{" "}
+            <span className="text-xs font-normal text-slate-400">
+              ({t("dials.trackLimit", { n: tpl.tracks.length })})
+            </span>
+          </h3>
           <span
             className={`rounded px-2 py-0.5 text-xs font-semibold ${
               Math.round(shareSum) === 100
@@ -161,11 +166,16 @@ export default async function DialEditorPage({
           ))}
         </div>
 
-        {/* add track */}
-        <form
-          action={createTrack.bind(null, tpl.id)}
-          className={`${ROW} mt-4 rounded-xl border border-dashed border-slate-300 p-2`}
-        >
+        {/* add track (max 10 per mix) */}
+        {tpl.tracks.length >= 10 ? (
+          <p className="mt-4 rounded-xl border border-dashed border-amber-300 bg-amber-50 p-3 text-center text-xs text-amber-700">
+            {t("dials.maxTracksReached")}
+          </p>
+        ) : (
+          <form
+            action={createTrack.bind(null, tpl.id)}
+            className={`${ROW} mt-4 rounded-xl border border-dashed border-slate-300 p-2`}
+          >
           <input type="hidden" name="key" value={tpl.key} />
           <input name="order" type="number" step="1" defaultValue={tpl.tracks.length} required dir="ltr" className={cell} aria-label={t("dials.order")} />
           <select name="kind" defaultValue="FIXED" className={cell} aria-label={t("dials.kind")}>
@@ -187,7 +197,8 @@ export default async function DialEditorPage({
           <SubmitButton className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-900 disabled:opacity-50">
             {t("dials.addTrack")}
           </SubmitButton>
-        </form>
+          </form>
+        )}
       </div>
     </div>
   );

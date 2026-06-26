@@ -22,8 +22,8 @@
 - **Phase 3A + 3B engine cores (merged to `main`):** pure questionnaire engine (`src/lib/questionnaire`) + eligibility/repayment-capacity engine (`src/lib/eligibility`) + their contracts. 34/34 tests green, tsc clean.
 - **Phase 2C (auth) — DONE:** Supabase email-OTP login (`/login`) · `Profile` + `UserRole` (customer/advisor/admin) · app-layer guards (`src/lib/auth`) · `/admin` gated by `proxy.ts` + `requireAdmin()`. Admin `ranaviv.cs@gmail.com` bootstrapped; RLS on `Profile` (defense-in-depth). **Guest calculator stays public.**
 
-**▶ NEXT — Phase 3C dials screen / Phase 3:**
-- **2D — DONE (session 15):** Admin config UI (params · rates · dials · risk) under `src/modules/admin` + `/admin`. i18n strings now split into per-feature `messages/he/*.json` files (shared base file is no longer a conflict surface).
+**▶ NEXT — Finish the Admin UI (spec doc pages 29–33) — full breakdown in Session 16; then Phase 3C dials screen:**
+- **2D + spec alignment — DONE (sessions 15–16):** Admin config UI (params · rates · dials) under `src/modules/admin` + `/admin`, tabbed nav, aligned to the client spec doc. i18n split into per-feature `messages/he/*.json` (shared base no longer a conflict surface). **Remaining for the full admin UI: Leads + Advisors tabs, Routine-Updates panel, and the Mixes amortization / term-years / total% fields — see the Session 16 handoff below.**
 - **Phase 3** (customer flow) needs a **template→engine resolver**: map DB enums→Hebrew domain values, resolve anchor/margin from `RateBand`, and pick track years from `yearStep` via the optimizer (port the simulator's `calculateMixToRange`). (3A questionnaire engine + 3B eligibility core already merged.)
 - **Auth for new admin pages:** place them under `/admin` (covered by `requireAdmin()` in `src/app/admin/layout.tsx`); re-check role in any server mutation (Prisma bypasses RLS).
 
@@ -53,13 +53,43 @@ The remote feature branches can be deleted once `main` is pushed.
 - [x] Phase 2A — Supabase + Prisma wired
 - [x] Phase 2B — Config seeded
 - [x] Phase 2C — Auth (OTP) + roles + admin guard
-- [x] Phase 2D — Admin config UI ✅ (config CRUD: params · rates · dials · risk)
+- [x] Phase 2D — Admin config UI ✅ (config CRUD: params · rates · dials) · UI aligned to spec doc (Session 16); Leads/Advisors/amortization remain
 - [~] Phase 3 — Customer guest flow: ✅ 3A engine · ✅ 3B eligibility core · ✅ 3B new-mortgage questionnaire UI + flow · 🔜 3C dials (resolver done, screen pending) · ⏳ 3D refi · ⏳ 3E insurance
 - [ ] Phase 4 — Customer accounts & personal area
 - [ ] Phase 5 — Document upload
 - [ ] Phase 6 — Advisor panel
 - [ ] Phase 7 — Insurance module
 - [ ] Phase 8 — Post-mortgage tracking
+
+---
+
+## Session 16 — 2026-06-26 — Admin UI aligned to the client spec doc (pages 29–33) + handoff ✅
+
+Branch `feat/phase-2d-admin-config`. Read the client spec doc (`עיצוב מערכת 6.26((.docx`, section **אזור מנהל**, pages 29–33) and aligned the existing Admin UI to it. `tsc` clean, 40/40 tests, pushed.
+
+**Done this session (no DB changes):**
+- **Tabbed admin nav** — `src/modules/admin/AdminTabs.tsx`, wired in `src/app/admin/layout.tsx`: Dashboard · שעונים (תמהילים) · ריביות שוק · הגדרות. Active state via `usePathname`. **Add the future Leads/Advisors tabs here.**
+- **Removed the Risk-rules editor** from the Admin UI (deleted `src/app/admin/risk/` + `src/modules/admin/risk/`, dropped its dashboard card + nav + strings) — not in the spec. **Kept** the `RiskRule` model + seed; the engine's risk speedometer still reads it.
+- **Mixes editor** (`src/app/admin/dials/[key]/page.tsx`): enforce **max 10 tracks** (live `n/10` counter; add-track form replaced by a notice at 10). Clearer labels — linkage "צמוד מדד / לא צמוד", jump "תדירות שינוי (חודשים)" + "קפיצה (שנים)".
+- **Market Rates** (`src/app/admin/rates/page.tsx`): route dropdown shows readable names via `admin.rates.route.*` ("קבועה לא צמודה", "משתנה כל 3 שנים — צמודה", "פריים", …); tab renamed "ריביות שוק".
+- **Settings** (`src/app/admin/parameters/page.tsx`): renamed "הגדרות"; market forecasts (index/prime/FX) lead; business-rule params kept (eligibility engine needs them) and labeled "כללי מנוע הזכאות".
+- All strings in `messages/he/admin.json` (namespace split — no `he.json` conflict).
+
+**▶ REMAINING to finish the Admin UI per the spec doc — PICK UP HERE:**
+
+> Spec text: `C:\Users\ELAD\Downloads\עיצוב מערכת 6.26((.docx`, "אזור מנהל" (pages 29–33). No python/pandoc on this machine — extract with `unzip -p "<file>" word/document.xml` then parse `<w:t>` runs in Node.
+
+1. **Mixes — missing per-track fields (NEEDS SCHEMA + `db push`):**
+   - **Amortization method** — לוח שפיצר / קרן שווה (spec line ~570). Add `amortization` enum (`SHPITZER` | `EQUAL_PRINCIPAL`) to `DialTrack` (or `DialTemplate`); add a selector in the dial editor + parse in `src/modules/admin/dials/actions.ts`. The calc engine already supports both methods.
+   - **Per-track term in years (4–30)** (line ~569). Currently optimizer-driven (`yearStep`). DECISION: keep optimizer vs add an admin-set `termYears`.
+   - **"אחוז כולל" (total %) vs "אחוז חלוקה" (split %)** (lines ~581–582). Only `sharePct` (split) exists — add a total-% column (field or computed) if required.
+2. **Leads management — NEW `/admin/leads` (NEEDS SCHEMA):** new `Lead` model (fullName, phone/email, source, dial-input snapshot, status NEW/ASSIGNED/…, `assignedAdvisorId` FK→Profile, timestamps); `LeadsTable` + server action `assignLeadToAdvisor(leadId, advisorId)`. **Dependency:** leads are created customer-side after the שעונים screen (Phase 3/4) — seed sample leads to build/test the admin flow now.
+3. **Advisors tab — NEW `/admin/advisors`:** advisor = `Profile` role=ADVISOR; `AdvisorSwitcher` → `AdvisorClients` (assigned leads). Actions `listAdvisors`, `getAdvisorClients(advisorId)`. **Dependency:** need ≥1 ADVISOR — extend `prisma/create-admin.mjs` into a `create-advisor` helper. Add Leads + Advisors to `AdminTabs.tsx`.
+4. **Routine Updates — NEW dashboard panel (no schema):** quick-update for monthly CPI/index, prime, variable anchors (reuse `parameters`/`rates` actions) + show last-updated (`updatedAt`).
+
+**Open decisions for Elad / product owner:** (a) amortization / term-years / total% in scope? (in the docx; not in the condensed English spec) · (b) cleared to `db push` the `Lead` model + amortization fields to the **shared** Supabase DB? · (c) lead-capture: seed sample leads + create-advisor helper now, wire real capture later?
+
+**Build pointers:** admin code lives in `src/modules/admin/*` + `src/app/admin/*`; mutations are `"use server"` actions that call `requireAdmin()` then `revalidatePath`; reuse `SubmitButton` (useFormStatus) to keep pages server components; strings in `messages/he/admin.json`. Dev runs on **:3001** (this branch). Log in as admin to view — `balisia4434@gmail.com` is ADMIN (or `npm run create-admin -- <email>`).
 
 ---
 

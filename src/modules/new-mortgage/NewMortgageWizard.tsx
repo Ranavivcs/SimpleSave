@@ -4,14 +4,20 @@
  * New-mortgage flow — thin client wrapper that wires the new-mortgage config,
  * its eligibility mapping, and its cross-field validation into the generic
  * QuestionnaireWizard, plus a live "estimated loan" summary (value − equity).
+ *
+ * After the questionnaire completes the post-flow takes over:
+ * dials ("clocks") → review (all answers + chosen dial) → document upload.
  */
 
-import { type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { QuestionnaireWizard } from "@/modules/questionnaire/QuestionnaireWizard";
 import type { QuestionnaireAnswer } from "@/lib/questionnaire";
 import type { ResolveDialsInput } from "@/lib/dials";
 import { DialsScreen } from "@/modules/dials/DialsScreen";
+import type { DialCardData } from "@/modules/dials/dialView";
+import { DocumentsUploadScreen } from "@/modules/documents/DocumentsUploadScreen";
+import { NewMortgageReview } from "./NewMortgageReview";
 import {
   newMortgageQuestionnaire,
   answerToEligibilityInput,
@@ -35,15 +41,9 @@ export function NewMortgageWizard() {
     );
   };
 
-  const renderResult = (answer: QuestionnaireAnswer, onReset: () => void): ReactNode => {
-    const input: ResolveDialsInput = {
-      loanAmount: answerToEligibilityInput(answer).requestedLoan,
-      purpose: answer.values.loanType === "allPurpose" ? "allPurpose" : "housing",
-      minPay: typeof answer.values.desiredPaymentMin === "number" ? answer.values.desiredPaymentMin : 0,
-      maxPay: typeof answer.values.desiredPaymentMax === "number" ? answer.values.desiredPaymentMax : 0,
-    };
-    return <DialsScreen input={input} onEdit={onReset} />;
-  };
+  const renderResult = (answer: QuestionnaireAnswer, onReset: () => void): ReactNode => (
+    <NewMortgagePostFlow answer={answer} onReset={onReset} />
+  );
 
   return (
     <QuestionnaireWizard
@@ -52,6 +52,48 @@ export function NewMortgageWizard() {
       extraValidate={validateNewMortgage}
       renderSummary={renderSummary}
       renderResult={renderResult}
+    />
+  );
+}
+
+/**
+ * Post-questionnaire stages: dials → review → documents. The chosen dial is
+ * kept here so going back from the review re-enters the dials screen (the
+ * selection there resets — a fresh pick is required to continue again).
+ */
+function NewMortgagePostFlow({ answer, onReset }: { answer: QuestionnaireAnswer; onReset: () => void }) {
+  const [stage, setStage] = useState<"dials" | "review" | "documents">("dials");
+  const [dial, setDial] = useState<DialCardData | null>(null);
+
+  if (stage === "review" && dial) {
+    return (
+      <NewMortgageReview
+        questionnaire={newMortgageQuestionnaire}
+        answer={answer}
+        dial={dial}
+        onBack={() => setStage("dials")}
+        onContinue={() => setStage("documents")}
+      />
+    );
+  }
+  if (stage === "documents") {
+    return <DocumentsUploadScreen type="new-mortgage" onBack={() => setStage("review")} />;
+  }
+
+  const input: ResolveDialsInput = {
+    loanAmount: answerToEligibilityInput(answer).requestedLoan,
+    purpose: answer.values.loanType === "allPurpose" ? "allPurpose" : "housing",
+    minPay: typeof answer.values.desiredPaymentMin === "number" ? answer.values.desiredPaymentMin : 0,
+    maxPay: typeof answer.values.desiredPaymentMax === "number" ? answer.values.desiredPaymentMax : 0,
+  };
+  return (
+    <DialsScreen
+      input={input}
+      onEdit={onReset}
+      onContinue={(d) => {
+        setDial(d);
+        setStage("review");
+      }}
     />
   );
 }

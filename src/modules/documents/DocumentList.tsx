@@ -1,17 +1,12 @@
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/db";
+import { applicable } from "./applicable";
 
 /**
  * Dynamic required-document list for a request, read from the seeded
  * `DocumentRequirement` config (Phase 2B). Filtered by request type; the actual
  * upload (Supabase Storage + advisor review) is Phase 5.
  */
-function applicable(appliesTo: string | null, type: string): boolean {
-  if (!appliesTo || appliesTo === "all") return true;
-  if (type === "refinance") return appliesTo !== "new";
-  if (type === "new-mortgage") return appliesTo !== "refinance";
-  return false; // insurance: only generic docs
-}
 
 export async function DocumentList({ type }: { type: string }) {
   const t = await getTranslations("documents");

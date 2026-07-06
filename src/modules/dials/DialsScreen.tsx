@@ -18,16 +18,35 @@ type State =
   | { status: "error" }
   | { status: "ready"; dials: DialCardData[] };
 
-export function DialsScreen({ input, onEdit }: { input: ResolveDialsInput; onEdit?: () => void }) {
+export function DialsScreen({
+  input,
+  onEdit,
+  onContinue,
+}: {
+  input: ResolveDialsInput;
+  onEdit?: () => void;
+  /** When set, a continue button appears once a dial is chosen. */
+  onContinue?: (dial: DialCardData) => void;
+}) {
   const t = useTranslations("dials");
   const [state, setState] = useState<State>({ status: "loading" });
   const [selected, setSelected] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const { loanAmount, purpose, minPay, maxPay } = input;
+  const inputKey = `${loanAmount}|${purpose}|${minPay}|${maxPay}`;
+
+  // Reset to loading when the input changes — render-time adjustment instead of
+  // a synchronous setState inside the effect (react-hooks/set-state-in-effect).
+  const [prevKey, setPrevKey] = useState(inputKey);
+  if (prevKey !== inputKey) {
+    setPrevKey(inputKey);
+    setState({ status: "loading" });
+    setSelected(null);
+  }
+
   useEffect(() => {
     let alive = true;
-    setState({ status: "loading" });
     getDials({ loanAmount, purpose, minPay, maxPay })
       .then((dials) => alive && setState({ status: "ready", dials }))
       .catch(() => alive && setState({ status: "error" }));
@@ -57,18 +76,36 @@ export function DialsScreen({ input, onEdit }: { input: ResolveDialsInput; onEdi
         state.dials.length === 0 ? (
           <p className="py-10 text-center text-sm text-muted">{t("empty")}</p>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            {state.dials.map((d) => (
-              <DialCard
-                key={d.key}
-                dial={d}
-                selected={selected === d.key}
-                expanded={expanded === d.key}
-                onSelect={() => setSelected(d.key)}
-                onToggleDetails={() => setExpanded((e) => (e === d.key ? null : d.key))}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {state.dials.map((d) => (
+                <DialCard
+                  key={d.key}
+                  dial={d}
+                  selected={selected === d.key}
+                  expanded={expanded === d.key}
+                  onSelect={() => setSelected(d.key)}
+                  onToggleDetails={() => setExpanded((e) => (e === d.key ? null : d.key))}
+                />
+              ))}
+            </div>
+            {onContinue && (
+              <div className="mt-8 text-center">
+                <button
+                  type="button"
+                  disabled={!selected}
+                  onClick={() => {
+                    const dial = state.dials.find((d) => d.key === selected);
+                    if (dial) onContinue(dial);
+                  }}
+                  className="rounded-lg bg-brand-700 px-8 py-2.5 text-sm font-semibold text-white hover:bg-brand-900 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {t("continue")}
+                </button>
+                {!selected && <p className="mt-2 text-xs text-muted">{t("continueHint")}</p>}
+              </div>
+            )}
+          </>
         )
       )}
         </section>

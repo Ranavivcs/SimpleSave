@@ -30,7 +30,10 @@ export async function sendOtp(
       emailRedirectTo: `${await getSiteUrl()}/auth/confirm?next=${encodeURIComponent(next)}`,
     },
   });
-  if (error) return { email, errorKey: "errorSend" };
+  if (error) {
+    console.error("[sendOtp]", error.status, error.code, error.message);
+    return { email, errorKey: "errorSend" };
+  }
 
   return { sent: true, email };
 }

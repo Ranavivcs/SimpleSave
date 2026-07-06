@@ -64,11 +64,11 @@ export default async function RequestPage({
         </div>
       ) : active === "personal" ? (
         <div className="mt-6">
-          <QuestionnaireWizard questionnaire={personalData} mode="save" saveKey={`${type}:personal`} />
+          <QuestionnaireWizard key={`${type}:personal`} questionnaire={personalData} mode="save" saveKey={`${type}:personal`} />
         </div>
       ) : active === "mortgage" ? (
         <div className="mt-6">
-          <QuestionnaireWizard questionnaire={mortgageData} mode="save" saveKey={`${type}:mortgage`} />
+          <QuestionnaireWizard key={`${type}:mortgage`} questionnaire={mortgageData} mode="save" saveKey={`${type}:mortgage`} />
         </div>
       ) : active === "documents" ? (
         <div className="mt-6">

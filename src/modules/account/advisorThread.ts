@@ -26,20 +26,40 @@ function toMessages(
 
 /**
  * POC bridge: resolve the customer-facing advisor thread from the Phase 6
- * AdvisorClient tables. Signed-in users match by email; local/dev previews fall
- * back to the seeded demo client for the request type.
+ * AdvisorClient tables. Signed-in users match by email — created on first
+ * visit so every registered customer gets an advisor (and shows up in the
+ * advisor's client table). Local/dev guest previews fall back to the seeded
+ * demo client for the request type.
  */
 export async function getCustomerAdvisorThread(
   requestType: string,
 ): Promise<CustomerAdvisorThread | null> {
   const user = await getSessionUser();
 
-  const exact = user?.email
+  let exact = user?.email
     ? await prisma.advisorClient.findFirst({
         where: { email: user.email, requestType },
         include: { messages: { orderBy: { sentAt: "asc" } } },
       })
     : null;
+
+  if (!exact && user?.email) {
+    // First visit for this request — enroll the customer under an advisor.
+    const advisor = await prisma.profile.findFirst({ where: { role: "ADVISOR" } });
+    const fallbackName = await prisma.advisorClient.findFirst({ select: { advisorName: true } });
+    exact = await prisma.advisorClient.create({
+      data: {
+        name: user.email.split("@")[0],
+        email: user.email,
+        advisorName: advisor?.fullName ?? fallbackName?.advisorName ?? "יועץ SimpleSave",
+        requestType,
+        propertyValue: 0,
+        equity: 0,
+        loanAmount: 0,
+      },
+      include: { messages: true },
+    });
+  }
 
   const canUseDemoThread =
     !exact && process.env.NODE_ENV !== "production" && ((await cookies()).get("guest") || !user);

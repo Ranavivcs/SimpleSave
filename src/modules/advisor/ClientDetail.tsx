@@ -139,11 +139,23 @@ function Documents({
         <li key={d.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-slate-900">{t(`docNames.${d.nameKey}`)}</span>
+              <span className="text-sm font-medium text-slate-900">
+                {d.name ?? t(`docNames.${d.nameKey}`)}
+              </span>
               <span className={"rounded-full px-2 py-0.5 text-xs font-medium " + DOC_STATUS_PILL[d.status]}>
                 {t(`docStatus.${d.status}`)}
               </span>
             </div>
+            {d.fileUrl && (
+              <a
+                href={d.fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1 inline-block max-w-64 truncate text-xs font-medium text-brand-700 hover:underline"
+              >
+                📎 {d.fileName ?? t("documents.viewFile")}
+              </a>
+            )}
             {d.note && <p className="mt-1 text-xs text-red-600">{d.note}</p>}
           </div>
           <div className="flex gap-2">

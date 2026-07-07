@@ -266,12 +266,20 @@ model AdvisorClientDocument {
   id       String          @id @default(cuid())
   client   AdvisorClient   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   clientId String
-  nameKey  String // document-name key (i18n advisor.docNames.*)
+  nameKey  String // document-name key (i18n advisor.docNames.*); "custom" when `name` is set
+  name     String? // plain display name (from DocumentRequirement) for customer uploads
   status   DocReviewStatus @default(PENDING)
   note     String?
   order    Int             @default(0)
 
+  // customer upload (Supabase Storage) — null for seeded review-only rows
+  requirementId String? // DocumentRequirement.id the upload fulfils
+  fileName      String?
+  filePath      String? // path inside the `documents` bucket
+  uploadedAt    DateTime?
+
   @@index([clientId])
+  @@index([clientId, requirementId])
 }
 
 model AdvisorClientMessage {

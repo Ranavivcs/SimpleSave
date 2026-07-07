@@ -31,9 +31,17 @@ export interface ClientDocument {
   id: string;
   /** Document-name key, resolved via i18n advisor.docNames.*. */
   nameKey: string;
+  /** Plain display name (customer uploads carry the requirement name). Wins over nameKey. */
+  name?: string;
   status: DocStatus;
   /** Optional advisor note (e.g. why rejected / what's missing). */
   note?: string;
+  /** Uploaded file (Supabase Storage), when the customer attached one. */
+  fileName?: string;
+  /** Short-lived signed URL for viewing the uploaded file. */
+  fileUrl?: string;
+  /** ISO timestamp of the upload. */
+  uploadedAt?: string;
 }
 
 export interface ClientMessage {

@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/db";
+import { createAdminClient, DOCUMENTS_BUCKET } from "@/lib/supabase/admin";
 import type {
   AdvisorClient,
   ClientDocument,
@@ -49,12 +50,28 @@ export async function getAdvisorClients(): Promise<AdvisorClient[]> {
     },
   });
 
+  // Signed view URLs for uploaded files (1h) — batched across all clients.
+  const paths = rows.flatMap((r) => r.documents.flatMap((d) => (d.filePath ? [d.filePath] : [])));
+  const urlByPath = new Map<string, string>();
+  if (paths.length > 0) {
+    const { data } = await createAdminClient()
+      .storage.from(DOCUMENTS_BUCKET)
+      .createSignedUrls(paths, 3600);
+    for (const item of data ?? []) {
+      if (item.path && item.signedUrl) urlByPath.set(item.path, item.signedUrl);
+    }
+  }
+
   return rows.map((r): AdvisorClient => {
     const documents: ClientDocument[] = r.documents.map((d) => ({
       id: d.id,
       nameKey: d.nameKey,
+      name: d.name ?? undefined,
       status: DOC[d.status],
       note: d.note ?? undefined,
+      fileName: d.fileName ?? undefined,
+      fileUrl: d.filePath ? urlByPath.get(d.filePath) : undefined,
+      uploadedAt: d.uploadedAt?.toISOString(),
     }));
     const messages: ClientMessage[] = r.messages.map((m) => ({
       id: m.id,

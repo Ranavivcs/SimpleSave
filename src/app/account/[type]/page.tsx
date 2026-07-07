@@ -72,7 +72,7 @@ export default async function RequestPage({
         </div>
       ) : active === "documents" ? (
         <div className="mt-6">
-          <DocumentList type={type} />
+          <DocumentList type={type} clientId={advisorThread?.clientId} />
         </div>
       ) : active === "messages" ? (
         <div className="mt-6">

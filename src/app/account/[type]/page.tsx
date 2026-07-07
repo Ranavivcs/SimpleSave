@@ -12,6 +12,7 @@ import { personalData } from "@/modules/questionnaire/content/personalData";
 import { mortgageData } from "@/modules/questionnaire/content/mortgageData";
 import { DocumentList } from "@/modules/documents/DocumentList";
 import { AdvisorMessagesPanel } from "@/modules/account/AdvisorMessagesPanel";
+import { ClaimPendingRequest } from "@/modules/account/ClaimPendingRequest";
 import { getCustomerAdvisorThread } from "@/modules/account/advisorThread";
 
 const TYPES = ["new-mortgage", "refinance", "insurance"];
@@ -50,6 +51,7 @@ export default async function RequestPage({
 
   return (
     <>
+      <ClaimPendingRequest type={type} />
       <h1 className="mb-5 text-2xl font-bold text-brand-900">{t(`requests.${type}`)}</h1>
       {advisorThread && (
         <div className="mb-4 rounded-2xl border border-brand-100 bg-brand-50 px-4 py-3 text-sm font-medium text-brand-800">

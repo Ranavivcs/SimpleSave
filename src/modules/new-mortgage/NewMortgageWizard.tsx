@@ -93,7 +93,33 @@ function NewMortgagePostFlow({ answer, onReset }: { answer: QuestionnaireAnswer;
       onContinue={(d) => {
         setDial(d);
         setStage("review");
+        stashPendingRequest(answer, d);
       }}
     />
   );
+}
+
+/**
+ * Keep the guest's questionnaire summary in localStorage so it survives the
+ * registration redirect; the personal area claims it after sign-in (see
+ * ClaimPendingRequest) and fills the advisor's client record with real numbers.
+ */
+function stashPendingRequest(answer: QuestionnaireAnswer, dial: DialCardData) {
+  const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : 0);
+  const propertyValue = num(answer.values.propertyValue);
+  const equity = num(answer.values.equity);
+  try {
+    localStorage.setItem(
+      "simplesave:pending-request",
+      JSON.stringify({
+        type: "new-mortgage",
+        propertyValue,
+        equity,
+        loanAmount: Math.max(0, propertyValue - equity),
+        dialName: dial.name,
+      }),
+    );
+  } catch {
+    // storage unavailable (private mode etc.) — the flow continues without it
+  }
 }

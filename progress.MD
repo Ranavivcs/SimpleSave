@@ -6,6 +6,47 @@
 
 ---
 
+## Session — 2026-07-06/07 — Post-hackathon: verified main, real OTP, Storage uploads
+
+**Context:** post-24h polish. Goal: complete the main customer flow end-to-end and close the
+customer↔advisor loop — small, demoable improvements on top of the hackathon base.
+
+**Done — 2026-07-06 (Day 1: verify + real login)**
+- Verified integrated `main` end-to-end: build + tsc + 58/58 tests + clicked through every flow.
+- **Fixed merge bug:** switching personal-area tabs crashed (`QuestionnaireWizard` kept the previous
+  tab's step state; 5-section personal form vs 4-section mortgage form). Fix: key the wizard per tab.
+- **Real OTP login works:** Supabase URL config (redirect `http://localhost:3000/**` + `:3001/**`),
+  custom SMTP via **Brevo** (built-in mailer = 2 emails/hour — useless for demo; Brevo IP-blocking
+  had to be deactivated for SMTP keys), Hebrew email templates with a `{{ .Token }}` code
+  (subject `קוד כניסה ל-SimpleSave`). **Demo rules: type the code (Gmail prefetch kills magic
+  links); one send per address (a new send invalidates older codes).**
+- **Dev infra:** AVG/Avast TLS interception broke all server-side Supabase calls
+  (`UNABLE_TO_VERIFY_LEAF_SIGNATURE`). `npm run dev` now runs `scripts/dev.mjs`, which sets
+  `NODE_EXTRA_CA_CERTS` to the AV cert when present (no-op elsewhere).
+
+**Done — 2026-07-07 (re-centralize + document upload + real client data)**
+- **Re-centralized `main`** (fast-forward): Day-1 fixes + ital's new-mortgage post-flow
+  (review screen + upload screen). Verified before push.
+- **Real document upload (`feat/document-upload-storage`):** personal-area מסמכים tab uploads
+  per-requirement files to a private Supabase Storage bucket `documents` (10MB; server action;
+  re-upload resets review to PENDING + deletes the replaced file). Advisor doc review shows the
+  file via 1h signed URL; approve/reject/request persists; customer sees the status pill.
+  One-time setup: `node scripts/setup-storage.mjs` (already run on the shared project).
+- **Signed-in customers auto-enroll as `AdvisorClient`** on first visit to a request — every real
+  registrant now gets an advisor, messaging, and uploads (previously only seeded emails/guests).
+- **Questionnaire → advisor data bridge:** on picking a שעון the guest's summary (property value,
+  equity, loan, dial name) is stashed in localStorage; after registration the personal area claims
+  it and fills the client's record — the advisor table shows real numbers + "תמהיל נבחר: שעון X"
+  instead of zeros. Cleared only on successful claim.
+- **Presentation:** `SimpleSave Presentation v7.pptx` — new slide 10 "מאז היממה הראשונה"
+  (post-hackathon additions); screenshot placeholders still to fill (slides 5/6/10/11).
+
+**Still open (deliberately not built):** post-flow upload screen persistence (guest files →
+auto-upload after registration) · refinance parser · insurance · זכאות calc · אישור עקרוני
+banks screen · post-mortgage tracking.
+
+---
+
 ## 📍 NEXT SESSION — START HERE (handoff, 2026-06-25)
 
 **Read order before ANY work:** `rules.MD` → `architecture.MD` → `ROADMAP.md` → this file. Then act.

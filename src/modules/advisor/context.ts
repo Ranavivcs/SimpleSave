@@ -16,7 +16,8 @@ export interface AdvisorContext {
  */
 export async function getAdvisorContext(): Promise<AdvisorContext | null> {
   const profile = await getProfile();
-  if (profile?.role === "ADVISOR") {
+  // ADMIN is a superset of ADVISOR — admins may enter the advisor area too.
+  if (profile?.role === "ADVISOR" || profile?.role === "ADMIN") {
     return { name: profile.email, isPreview: false };
   }
   const previewing =

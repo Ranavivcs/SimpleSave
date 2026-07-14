@@ -34,11 +34,15 @@ export async function requireUser() {
   return user;
 }
 
-/** Require a specific role; redirect to /login if anonymous, or home if the role is wrong. */
+/**
+ * Require a specific role; redirect to /login if anonymous, or home if the role is wrong.
+ * ADMIN is a superset — it satisfies every role guard (admin ≥ advisor ≥ customer),
+ * so an admin account can enter the advisor area too.
+ */
 export async function requireRole(role: UserRole): Promise<Profile> {
   const profile = await getProfile();
   if (!profile) redirect("/login");
-  if (profile.role !== role) redirect("/");
+  if (profile.role !== role && profile.role !== "ADMIN") redirect("/");
   return profile;
 }
 

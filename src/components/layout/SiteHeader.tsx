@@ -15,9 +15,11 @@ export async function SiteHeader() {
   const user = await getSessionUser();
   const profile = user ? await getProfile() : null;
   const isAdvisor = profile?.role === "ADVISOR";
+  const isAdmin = profile?.role === "ADMIN";
+  // Admins are a superset (admin ≥ advisor), so they get the admin + advisor links.
   // Dev convenience: expose the advisor link to anyone locally (the area's own
-  // gate still applies). In production only real advisors see it.
-  const showAdvisorLink = isAdvisor || process.env.NODE_ENV !== "production";
+  // gate still applies). In production only real advisors/admins see it.
+  const showAdvisorLink = isAdvisor || isAdmin || process.env.NODE_ENV !== "production";
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur">
@@ -32,13 +34,21 @@ export async function SiteHeader() {
         </nav>
 
         <div className="ms-auto flex items-center gap-2">
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="rounded-lg px-4 py-2 text-sm font-semibold text-brand-700 hover:bg-brand-50"
+            >
+              {t("adminArea")}
+            </Link>
+          )}
           {showAdvisorLink && (
             <Link
               href="/advisor"
               className="rounded-lg px-4 py-2 text-sm font-semibold text-brand-700 hover:bg-brand-50"
             >
               {tAdvisor("navLink")}
-              {!isAdvisor && <span className="ms-1 text-xs text-muted">(dev)</span>}
+              {!isAdvisor && !isAdmin && <span className="ms-1 text-xs text-muted">(dev)</span>}
             </Link>
           )}
           <Link

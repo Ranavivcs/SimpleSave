@@ -6,6 +6,28 @@
 
 ---
 
+## Session — 2026-07-14 — Grader test access (all-role account) + deploy prep
+
+**Context:** course 10263 submission form asks for admin/advisor/client credentials the grader can use,
+and the app must be reachable by the grader (not just local). Login is passwordless OTP (no passwords).
+
+**Done:**
+- **Role hierarchy** — `ADMIN` is now a superset that satisfies the advisor + customer guards
+  (`requireRole` in `src/lib/auth/session.ts`; `getAdvisorContext` in `src/modules/advisor/context.ts`).
+  A single ADMIN account can enter `/admin`, `/advisor`, and `/account`. Admin gate itself unchanged —
+  customers/advisors are still redirected off `/admin` (verified at runtime: `/admin` → redirect to /login).
+- **All-access test profile** — `KKtestaicourse@gmail.com` created via `npm run create-admin` (role=ADMIN,
+  auth user `139405e0-…`, email pre-confirmed). Shared inbox the grader reads OTP codes from.
+- **Header** — admins now see `אזור מנהל` (`/admin`) + `אזור יועץ` (`/advisor`) links; `(dev)` suffix only
+  for the true dev-preview case. New `common.adminArea` string. Anonymous header unchanged (verified).
+- **Verify:** `npm run build` ✓ · tsc clean · 58/58 tests · runtime smoke test (all routes, header DOM,
+  no console/server errors).
+
+**Next:** deploy to a public host (Vercel) so the grader can log in remotely — needs env vars set on the
+host + Supabase Auth URL config updated with the production domain. Fill form Q2 (KK) / Q4 / Q5 (deploy URL).
+
+---
+
 ## Session — 2026-07-06/07 — Post-hackathon: verified main, real OTP, Storage uploads
 
 **Context:** post-24h polish. Goal: complete the main customer flow end-to-end and close the

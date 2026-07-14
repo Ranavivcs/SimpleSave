@@ -22,9 +22,15 @@ and the app must be reachable by the grader (not just local). Login is passwordl
   for the true dev-preview case. New `common.adminArea` string. Anonymous header unchanged (verified).
 - **Verify:** `npm run build` ✓ · tsc clean · 58/58 tests · runtime smoke test (all routes, header DOM,
   no console/server errors).
+- **DEPLOYED to Vercel** (`afekacours/simplesave`, project `prj_pmk4OL5…`): stable production alias
+  **https://simplesave-six.vercel.app** (public; the immutable per-deploy URL stays behind Vercel auth,
+  which is fine — grader uses the alias). 6 Supabase env vars + `NEXT_PUBLIC_SITE_URL` set on Vercel
+  production. GitHub auto-deploy connection not set (account lacks a GitHub login connection) → deploys
+  are CLI-driven (`vercel --prod`).
 
-**Next:** deploy to a public host (Vercel) so the grader can log in remotely — needs env vars set on the
-host + Supabase Auth URL config updated with the production domain. Fill form Q2 (KK) / Q4 / Q5 (deploy URL).
+**Still on the human:** (1) Supabase → Auth → URL Config: add `https://simplesave-six.vercel.app` to Site
+URL + Redirect URLs. (2) One real KK login on the live site to confirm OTP end-to-end (code lands in the
+`KKtestaicourse@gmail.com` shared inbox). Form: Q2 = KK · Q4 = KK all-role account · Q5 = the alias URL.
 
 ---
 
